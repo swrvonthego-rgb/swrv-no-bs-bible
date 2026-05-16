@@ -748,7 +748,13 @@ function renderVerse(v){
       const meta=window.SOURCES[key];
       if(!meta)continue;
       const cls=key==='AMPLIFIED'?'amp':'';
-      verseHtml.push('<button class="source-tab '+cls+'" data-src="'+key+'" data-ref="'+refId+'" onclick="toggleSource(this)">'+meta.short+'</button>');
+      // Pull the category badge for this source (if SOURCE_CATEGORIES loaded)
+      let catBadge = '';
+      if(meta.category && window.SOURCE_CATEGORIES){
+        const cat = Object.values(window.SOURCE_CATEGORIES).find(c => c.code === meta.category);
+        if(cat) catBadge = '<span class="src-cat-badge" title="'+escapeHtml(cat.label)+' — '+escapeHtml(cat.description)+'">'+cat.badge+'</span>';
+      }
+      verseHtml.push('<button class="source-tab '+cls+'" data-src="'+key+'" data-ref="'+refId+'" onclick="toggleSource(this)" title="'+escapeHtml(meta.name||key)+' ('+escapeHtml(meta.license||'')+')">'+catBadge+meta.short+'</button>');
     }
     verseHtml.push('</div>');
     for(const key of sourceKeys){
@@ -834,6 +840,7 @@ function _loadChapterCore(n){
     const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
     html.push(renderCompanionPassages(currentBook, currentChapter));
+    html.push(renderChronologicalEvents(currentBook, currentChapter));
     main.innerHTML=html.join('');
   }else{
     if(!verseNums.includes(currentVerse))currentVerse=verseNums[0]||1;
@@ -860,6 +867,7 @@ function renderVerseMode(ch,verseNums){
   html.push('</div>');
   html.push(renderVerse(v));
   html.push(renderCompanionPassages(currentBook, currentChapter));
+  html.push(renderChronologicalEvents(currentBook, currentChapter));
   html.push('<div class="verse-mode-controls" style="margin-top:30px;">');
   html.push('<button class="nav-btn" onclick="prevVerse()" '+(idx===0&&currentChapter===1?'disabled':'')+'>← Prev</button>');
   html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span></div>');
@@ -1273,6 +1281,86 @@ function renderCompanionPassages(book, chapter){
     h += '</div>';
   }
   h += '<div style="font-size:10px;color:var(--fg-dim);margin-top:8px;font-style:italic;">Sources: 1 Enoch (Charles 1917) &middot; Josephus Antiquities (Whiston 1737) &middot; both public domain.</div>';
+  h += '</div>';
+  return h;
+}
+
+// SWRV Chronological Events Panel — shows events anchored to this passage
+function renderChronologicalEvents(book, chapter){
+  if(!window.PASSAGE_TO_EVENTS) return '';
+  // Two lookup keys: "Book Chapter" and just "Book" — events can anchor at chapter level
+  const keys = [book + ' ' + chapter, book];
+  const eventIds = new Set();
+  for(const k of keys){
+    if(window.PASSAGE_TO_EVENTS[k]){
+      window.PASSAGE_TO_EVENTS[k].forEach(id => eventIds.add(id));
+    }
+  }
+  // Also check substring match — "Genesis 1" matches an event tagged "Genesis 1-2"
+  for(const passage in window.PASSAGE_TO_EVENTS){
+    if(passage.startsWith(book + ' ') && passage.includes('-')){
+      // Parse range "Genesis 1-2"
+      const m = passage.match(/^(.+?)\s+(\d+)-(\d+)/);
+      if(m && m[1] === book){
+        const start = parseInt(m[2]), end = parseInt(m[3]);
+        if(chapter >= start && chapter <= end){
+          window.PASSAGE_TO_EVENTS[passage].forEach(id => eventIds.add(id));
+        }
+      }
+    }
+  }
+  if(eventIds.size === 0) return '';
+
+  let h = '<div class="companion-panel" style="margin-top:18px;padding:14px 16px;background:var(--bg-3);border-left:3px solid #DB2777;border-radius:6px;">';
+  h += '<div style="font-size:11px;color:#DB2777;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🕰️ Chronological events in this passage</div>';
+
+  for(const evId of eventIds){
+    const ev = window.CHRONOLOGICAL_EVENTS_BY_ID[evId];
+    if(!ev) continue;
+    const conf = window.CONFIDENCE_LEVELS && window.CONFIDENCE_LEVELS[ev.confidence.toUpperCase()];
+    h += '<div class="event-card">';
+    h += '<div class="event-card-title">' + escapeHtml(ev.title) + '</div>';
+    h += '<div class="event-card-meta">';
+    h += '<span class="event-card-date">' + escapeHtml(ev.date) + '</span>';
+    if(conf) h += '<span class="confidence-pill confidence-' + ev.confidence + '" title="' + escapeHtml(conf.description) + '">' + conf.label + '</span>';
+    h += '</div>';
+    if(ev.notes) h += '<div style="font-size:13px;color:var(--fg);line-height:1.5;margin-bottom:8px;">' + escapeHtml(ev.notes) + '</div>';
+
+    // People
+    if(ev.people && ev.people.length){
+      h += '<div style="margin-top:6px;font-size:11px;"><span style="color:var(--fg-dim);">People: </span>';
+      for(const p of ev.people){
+        h += '<button class="icon-btn" style="font-size:11px;padding:2px 8px;margin-right:4px;background:var(--bg-3);border:1px solid var(--people);color:var(--people);" onclick="showPerson(\'' + p.replace(/'/g,"\\'") + '\')">👤 ' + escapeHtml(p.replace('_NT','').replace('_Magdalene','')) + '</button>';
+      }
+      h += '</div>';
+    }
+
+    // Themes
+    if(ev.themes && ev.themes.length){
+      h += '<div class="event-themes"><span style="color:var(--fg-dim);font-size:11px;">Themes: </span>';
+      for(const t of ev.themes){
+        h += '<span class="event-theme">' + escapeHtml(t.replace(/_/g,' ')) + '</span>';
+      }
+      h += '</div>';
+    }
+
+    // Source links with category labels
+    if(ev.source_links && ev.source_links.length){
+      h += '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);">';
+      h += '<div style="font-size:10px;color:var(--fg-dim);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Source links</div>';
+      for(const link of ev.source_links){
+        const catLabel = link.category ? (Object.values(window.SOURCE_CATEGORIES||{}).find(c=>c.code===link.category)) : null;
+        h += '<div style="margin:4px 0;font-size:12px;">';
+        if(catLabel) h += '<span style="display:inline-block;margin-right:6px;padding:1px 6px;background:var(--bg-3);border-radius:3px;font-size:10px;color:var(--fg-dim);">' + catLabel.badge + ' ' + catLabel.short + '</span>';
+        h += '<strong style="color:var(--gold);">' + escapeHtml(link.source) + '</strong> ' + escapeHtml(link.ref);
+        if(link.why) h += '<div style="font-size:11px;color:var(--fg-dim);margin-left:14px;margin-top:2px;">' + escapeHtml(link.why) + '</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    }
+
+    h += '</div>';
+  }
   h += '</div>';
   return h;
 }
@@ -2364,19 +2452,101 @@ function showModal(type){
     setTimeout(function(){showModal('library');}, 0);
     return;
   }else if(type==='audit'){
-    const book = window.currentBook || 'Genesis';
-    const meta = (window.BIBLE_INDEX||[]).find(b=>b.slug===book);
-    const chCount = meta ? meta.chapters : 50;
-    title.textContent='Verse Audit — '+book+' (all '+chCount+' chapters)';
-    let auditHtml='<p><b>Total verses present:</b> '+window.AUDIT_TOTAL+' (full Hebrew Genesis)</p>';
-    auditHtml+='<p style="font-size:12px;color:var(--fg-dim);">JPS follows Hebrew Masoretic numbering. Christian Bible Genesis 31:55 = our Genesis 32:1.</p>';
-    auditHtml+='<table><thead><tr><th>Ch</th><th>Verses</th><th>Title</th></tr></thead><tbody>';
-    for(let i=1;i<=50;i++){
-      const ch=window.GENESIS[i];
-      const title=ch?ch.title.replace(/^Genesis \d+ — /,''):'';
-      auditHtml+='<tr><td>'+i+'</td><td>'+window.AUDIT[i]+'</td><td>'+escapeHtml(title)+'</td></tr>';
+    title.textContent='SWRV Kingdom Bible — Source Coverage Audit';
+    let auditHtml = '';
+
+    // === SECTION 1: Source coverage stats ===
+    auditHtml += '<h4 style="color:var(--gold);margin-top:0;">📊 What is connected</h4>';
+    auditHtml += '<p style="font-size:12px;color:var(--fg-dim);">Live counts across all 66 books. Every claim in this app must trace to a source in the approved library (Rule 06).</p>';
+
+    // Count things live
+    let totalVerses = 0, withBSB = 0, withKJV = 0, withClickable = 0, withPeople = 0, withKL = 0;
+    let totalClickables = 0, totalPeople = 0;
+    const allBooks = [];
+    if(window.GENESIS) allBooks.push(window.GENESIS);
+    if(window.BIBLE) for(const slug in window.BIBLE) allBooks.push(window.BIBLE[slug]);
+    for(const bookData of allBooks){
+      for(const ch in bookData){
+        for(const vn in bookData[ch].verses){
+          const v = bookData[ch].verses[vn];
+          totalVerses++;
+          if(v.sources && v.sources.BSB) withBSB++;
+          if(v.sources && v.sources.KJV) withKJV++;
+          if(v.definableWords && v.definableWords.length){ withClickable++; totalClickables += v.definableWords.length; }
+          if(v.peopleInVerse && v.peopleInVerse.length){ withPeople++; totalPeople += v.peopleInVerse.length; }
+          if(v.kingdomLens) withKL++;
+        }
+      }
     }
-    auditHtml+='</tbody></table>';
+    const pct = n => (100*n/totalVerses).toFixed(1)+'%';
+
+    auditHtml += '<div class="audit-stat-grid">';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+totalVerses.toLocaleString()+'</div><div class="audit-stat-label">Verses processed</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+withBSB.toLocaleString()+'</div><div class="audit-stat-label">BSB modern text ('+pct(withBSB)+')</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+withKJV.toLocaleString()+'</div><div class="audit-stat-label">KJV preserved ('+pct(withKJV)+')</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+totalClickables.toLocaleString()+'</div><div class="audit-stat-label">Clickable terms tagged</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+totalPeople.toLocaleString()+'</div><div class="audit-stat-label">Person tags</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+withKL+'</div><div class="audit-stat-label">Kingdom Lens panels</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+Object.keys(window.DEFINITIONS||{}).length+'</div><div class="audit-stat-label">Deep definitions</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+Object.keys(window.PEOPLES||{}).length+'</div><div class="audit-stat-label">People profiles</div></div>';
+    // Count cross-source entries
+    let csmCount = 0;
+    if(window.CROSS_SOURCE_MAP){
+      for(const b in window.CROSS_SOURCE_MAP) for(const c in window.CROSS_SOURCE_MAP[b]) csmCount += window.CROSS_SOURCE_MAP[b][c].length;
+    }
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+csmCount+'</div><div class="audit-stat-label">Cross-source links</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.CHRONOLOGICAL_EVENTS||[]).length+'</div><div class="audit-stat-label">Chronological events</div></div>';
+    auditHtml += '</div>';
+
+    // === SECTION 2: Source category breakdown ===
+    auditHtml += '<h4 style="color:var(--gold);margin-top:24px;">🏷️ Source categories in use (Rule 06 — no blurring)</h4>';
+    auditHtml += '<p style="font-size:12px;color:var(--fg-dim);">Every source declares its category. Canonical Scripture is the spine; everything else is supporting material.</p>';
+    auditHtml += '<table style="margin-top:12px;"><thead><tr><th>Badge</th><th>Category</th><th>Sources</th><th>License</th></tr></thead><tbody>';
+    if(window.SOURCE_CATEGORIES && window.SOURCES){
+      for(const catKey in window.SOURCE_CATEGORIES){
+        const cat = window.SOURCE_CATEGORIES[catKey];
+        const sources = Object.entries(window.SOURCES).filter(([k,v]) => v.category === cat.code);
+        if(sources.length === 0) continue;
+        auditHtml += '<tr>';
+        auditHtml += '<td style="font-size:18px;">'+cat.badge+'</td>';
+        auditHtml += '<td><strong style="color:var(--gold);">'+cat.label+'</strong><div style="font-size:11px;color:var(--fg-dim);margin-top:2px;">'+escapeHtml(cat.description)+'</div></td>';
+        auditHtml += '<td>'+sources.map(([k,v])=>v.short).join(', ')+'</td>';
+        auditHtml += '<td style="font-size:10px;color:var(--fg-dim);">'+sources.map(([k,v])=>escapeHtml(v.license||'—')).join('<br><br>')+'</td>';
+        auditHtml += '</tr>';
+      }
+    }
+    auditHtml += '</tbody></table>';
+
+    // === SECTION 3: BSB attribution ===
+    auditHtml += '<h4 style="color:var(--gold);margin-top:24px;">📜 BSB attribution (per license)</h4>';
+    auditHtml += '<p style="font-size:12px;background:var(--bg-3);padding:10px 14px;border-radius:6px;line-height:1.5;">'+escapeHtml(window.BSB_ATTRIBUTION || '')+'</p>';
+
+    // === SECTION 4: Chronological events list ===
+    auditHtml += '<h4 style="color:var(--gold);margin-top:24px;">🕰️ Chronological events with confidence labels</h4>';
+    auditHtml += '<p style="font-size:12px;color:var(--fg-dim);">Each event anchored to canonical passages, with date confidence and source links.</p>';
+    auditHtml += '<table><thead><tr><th>Event</th><th>Date</th><th>Confidence</th><th>Passages</th></tr></thead><tbody>';
+    for(const ev of (window.CHRONOLOGICAL_EVENTS||[])){
+      auditHtml += '<tr>';
+      auditHtml += '<td><strong>'+escapeHtml(ev.title)+'</strong></td>';
+      auditHtml += '<td style="font-size:11px;">'+escapeHtml(ev.date)+'</td>';
+      auditHtml += '<td><span class="confidence-pill confidence-'+ev.confidence+'">'+ev.confidence+'</span></td>';
+      auditHtml += '<td style="font-size:11px;">'+(ev.passages||[]).join(', ')+'</td>';
+      auditHtml += '</tr>';
+    }
+    auditHtml += '</tbody></table>';
+
+    // === SECTION 5: Per-book verse count (the original Genesis audit, preserved) ===
+    auditHtml += '<h4 style="color:var(--gold);margin-top:24px;">📖 Genesis verse count (original deep build)</h4>';
+    auditHtml += '<p style="font-size:12px;color:var(--fg-dim);">JPS follows Hebrew Masoretic numbering. Christian Bible Genesis 31:55 = our Genesis 32:1.</p>';
+    auditHtml += '<p><b>Total verses in Genesis:</b> '+(window.AUDIT_TOTAL||'—')+' (full Hebrew Genesis)</p>';
+    auditHtml += '<table><thead><tr><th>Ch</th><th>Verses</th><th>Title</th></tr></thead><tbody>';
+    for(let i=1;i<=50;i++){
+      const ch=window.GENESIS && window.GENESIS[i];
+      const chTitle=ch?ch.title.replace(/^Genesis \d+ — /,''):'';
+      auditHtml+='<tr><td>'+i+'</td><td>'+((window.AUDIT||{})[i]||'—')+'</td><td>'+escapeHtml(chTitle)+'</td></tr>';
+    }
+    auditHtml += '</tbody></table>';
+
     body.innerHTML=auditHtml;
   }
   document.getElementById('modal').classList.add('show');
