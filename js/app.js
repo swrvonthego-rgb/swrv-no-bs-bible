@@ -936,7 +936,10 @@ function showDef(word){
   if(def.hebrew)html.push('<div class="def-hebrew">'+def.hebrew+'</div>');
   if(def.translit)html.push('<div class="def-translit">'+escapeHtml(def.translit)+'</div>');
   if(def.strongs){
-    const sId=def.strongs.match(/H\d+/)?.[0];
+    // Recognize both Hebrew (H1234) and Greek (G1234) Strong's IDs
+    const hId=def.strongs.match(/H\d+/)?.[0];
+    const gId=def.strongs.match(/G\d+/)?.[0];
+    const sId=hId||gId;
     if(sId)html.push('<div class="def-strongs" onclick="showStrongs(\''+sId+'\')" title="Tap for full Strong\'s entry">Strong\'s '+escapeHtml(def.strongs)+' →</div>');
     else html.push('<div class="def-strongs">Strong\'s '+escapeHtml(def.strongs)+'</div>');
   }
@@ -1025,45 +1028,78 @@ function lookupBDB(id){
 }
 
 function showStrongs(id){
-  const entry=window.STRONGS_HEB[id];
-  const bdbResults=lookupBDB(id);
-  if(!entry&&bdbResults.length===0){alert('Strong\'s '+id+' not found.');return}
+  // Handle both Hebrew (H1, H2, ...) and Greek (G1, G2, ... OR raw numeric)
+  let entry = null;
+  let isGreek = false;
+  let bdbResults = [];
+
+  if (typeof id === 'string' && id.toUpperCase().startsWith('G')) {
+    // Greek — strip G prefix and look up
+    const num = id.substring(1);
+    entry = (window.STRONGS_GRK && window.STRONGS_GRK[num]) || null;
+    isGreek = true;
+  } else if (typeof id === 'string' && id.toUpperCase().startsWith('H')) {
+    // Hebrew with H prefix
+    entry = window.STRONGS_HEB && window.STRONGS_HEB[id];
+    bdbResults = lookupBDB(id);
+  } else {
+    // Try as-is (numeric or H-prefixed)
+    entry = (window.STRONGS_HEB && window.STRONGS_HEB[id]) ||
+            (window.STRONGS_GRK && window.STRONGS_GRK[id]);
+    if (window.STRONGS_GRK && window.STRONGS_GRK[id]) isGreek = true;
+    if (typeof id === 'string' && id.startsWith('H')) bdbResults = lookupBDB(id);
+  }
+
+  if(!entry && bdbResults.length === 0){alert("Strong's "+id+' not found.');return}
+
   const popup=document.getElementById('defPopup');
   popup.classList.remove('people');
   popup.classList.add('strongs');
   const html=[];
-  html.push('<div class="def-word">Strong\'s '+escapeHtml(id)+'</div>');
-  // Hebrew lemma - prefer BDB (with vowel pointing) but fall back to Strong's
-  const lemma=(bdbResults[0]?.entry?.lemma)||entry?.lemma;
-  if(lemma)html.push('<div class="def-hebrew">'+lemma+'</div>');
-  const xlit=entry?.xlit||bdbResults[0]?.entry?.xlit;
-  if(xlit)html.push('<div class="def-translit">'+escapeHtml(xlit)+(entry?.pron?' — pronounced: '+escapeHtml(entry.pron):'')+'</div>');
-  // BDB Senses
-  if(bdbResults.length>0){
+  html.push('<div class="def-word">Strong\'s '+escapeHtml(id)+(isGreek?' (Greek)':' (Hebrew)')+'</div>');
+
+  if (isGreek && entry) {
+    // Greek lexicon entry
+    if(entry.grk) html.push('<div class="def-hebrew">'+entry.grk+'</div>');
+    if(entry.translit || entry.xlit) html.push('<div class="def-translit">'+escapeHtml(entry.translit||entry.xlit||'')+'</div>');
     html.push('<div class="def-section strongs-section">');
-    html.push('<div class="def-section-label">📖 BDB Hebrew Lexicon — '+(bdbResults.length>1?bdbResults.length+' senses':'definition')+'</div>');
-    for(const r of bdbResults){
-      if(bdbResults.length>1)html.push('<div style="margin-top:8px;color:var(--gold);font-weight:700;font-size:13px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
-      else if(r.entry.gloss)html.push('<div style="color:var(--gold);font-weight:600;font-size:13px;margin-bottom:4px;">"'+escapeHtml(r.entry.gloss)+'"</div>');
-      if(r.entry.morph)html.push('<div style="font-size:11px;color:var(--fg-dim);font-family:-apple-system,sans-serif;">'+escapeHtml(r.entry.morph)+'</div>');
-      if(r.entry.def){
-        // Format the pipe-separated definition list
-        const def=r.entry.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,'<br>').replace(/§/g,'§');
-        html.push('<div class="def-section-text" style="margin-top:6px;line-height:1.6;">'+def+'</div>');
+    html.push('<div class="def-section-label">📚 Strong\'s Greek (1894) — concise definition</div>');
+    if(entry.derivation) html.push('<div class="def-section-text"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>');
+    if(entry.def) html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(entry.def)+'</div>');
+    if(entry.kjv_def) html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renders as:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
+    html.push('</div>');
+    html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Strong\'s Concise Dictionary of the Greek New Testament (1894). Public domain.</i></div></div>');
+  } else {
+    // Hebrew lexicon entry (existing logic)
+    const lemma=(bdbResults[0]?.entry?.lemma)||entry?.lemma;
+    if(lemma)html.push('<div class="def-hebrew">'+lemma+'</div>');
+    const xlit=entry?.xlit||bdbResults[0]?.entry?.xlit;
+    if(xlit)html.push('<div class="def-translit">'+escapeHtml(xlit)+(entry?.pron?' — pronounced: '+escapeHtml(entry.pron):'')+'</div>');
+    if(bdbResults.length>0){
+      html.push('<div class="def-section strongs-section">');
+      html.push('<div class="def-section-label">📖 BDB Hebrew Lexicon — '+(bdbResults.length>1?bdbResults.length+' senses':'definition')+'</div>');
+      for(const r of bdbResults){
+        if(bdbResults.length>1)html.push('<div style="margin-top:8px;color:var(--gold);font-weight:700;font-size:13px;">'+r.key+(r.entry.gloss?' — "'+escapeHtml(r.entry.gloss)+'"':'')+'</div>');
+        else if(r.entry.gloss)html.push('<div style="color:var(--gold);font-weight:600;font-size:13px;margin-bottom:4px;">"'+escapeHtml(r.entry.gloss)+'"</div>');
+        if(r.entry.morph)html.push('<div style="font-size:11px;color:var(--fg-dim);font-family:-apple-system,sans-serif;">'+escapeHtml(r.entry.morph)+'</div>');
+        if(r.entry.def){
+          const def=r.entry.def.replace(/<[^>]*>/g,'').replace(/\s*\|\s*/g,'<br>').replace(/§/g,'§');
+          html.push('<div class="def-section-text" style="margin-top:6px;line-height:1.6;">'+def+'</div>');
+        }
       }
+      html.push('</div>');
     }
-    html.push('</div>');
+    if(entry){
+      html.push('<div class="def-section">');
+      html.push('<div class="def-section-label">📚 Strong\'s (1894) — concise definition</div>');
+      if(entry.derivation)html.push('<div class="def-section-text"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>');
+      if(entry.strongs_def)html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(entry.strongs_def)+'</div>');
+      if(entry.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renders as:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
+      html.push('</div>');
+    }
+    html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Brown-Driver-Briggs Hebrew-English Lexicon (1906) via STEPBible/Tyndale House (CC BY 4.0). Strong\'s Concise Dictionary of the Hebrew Bible (1894) via openscriptures.org. Both public domain.</i></div></div>');
   }
-  // Strong's
-  if(entry){
-    html.push('<div class="def-section">');
-    html.push('<div class="def-section-label">📚 Strong\'s (1894) — concise definition</div>');
-    if(entry.derivation)html.push('<div class="def-section-text"><b>Derivation:</b> '+escapeHtml(entry.derivation)+'</div>');
-    if(entry.strongs_def)html.push('<div class="def-section-text" style="margin-top:6px;">'+escapeHtml(entry.strongs_def)+'</div>');
-    if(entry.kjv_def)html.push('<div class="def-section-text" style="margin-top:6px;font-size:12px;color:var(--fg-mute);"><b>KJV renders as:</b> <i>'+escapeHtml(entry.kjv_def)+'</i></div>');
-    html.push('</div>');
-  }
-  html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text" style="font-size:11px;"><i>Brown-Driver-Briggs Hebrew-English Lexicon (1906) via STEPBible/Tyndale House (CC BY 4.0). Strong\'s Concise Dictionary of the Hebrew Bible (1894) via openscriptures.org. Both public domain.</i></div></div>');
+
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
