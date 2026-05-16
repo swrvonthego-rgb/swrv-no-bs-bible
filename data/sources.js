@@ -50,6 +50,15 @@ window.SOURCES = {
     license: "Public domain",
     description: "Pre-Christian Greek translation of the OT. The Bible Jesus and the apostles often quoted."
   },
+  "GREEK_NT": {
+    name: "Greek New Testament (Textus Receptus)",
+    short: "GRC",
+    color: "#059669",
+    category: "ancient_translation_witness",
+    year: "1st century AD (TR ed. Stephanus 1550)",
+    license: "Public domain",
+    description: "Original-language Greek NT, Textus Receptus edition (basis of the KJV). The actual words the apostles wrote."
+  },
   "LXX_ENG": {
     name: "Septuagint (Brenton English)",
     short: "LXX",
