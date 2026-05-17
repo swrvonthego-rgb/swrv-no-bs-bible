@@ -52,6 +52,7 @@
       <button id="modeVerseBtn" onclick="setMode('verse')">Verse</button>
     </div>
     <button id="prehistoryBtn" class="icon-btn" onclick="showModal('prehistory')">📜 Before Genesis</button>
+    <button id="searchBtn" class="icon-btn" onclick="openSearch()" title="Search verses, words, people, places, events, lexicons" style="background:var(--bg-3);border-color:var(--gold);color:var(--gold);">🔎 Search</button>
     <button id="storyBtn" class="icon-btn" onclick="showModal('story')">📜 Story</button>
     <button class="icon-btn" onclick="showModal('strongs')">📔 Dictionary</button>
     <button class="icon-btn" onclick="showModal('peoples')">👥 Peoples</button>
@@ -73,6 +74,37 @@
 
 <div class="layout">
 <main class="main" id="mainContent"></main>
+</div>
+
+<!-- SWRV Global Search Drawer — opens on header 🔎 Search button -->
+<div class="search-drawer" id="searchDrawer" onclick="if(event.target===this) closeSearch()">
+  <div class="search-drawer-inner">
+    <div class="search-input-wrap">
+      <span class="search-input-icon">🔎</span>
+      <input id="searchInput" class="search-input" type="search" placeholder="Verse refs, words, names, themes, Strong's…" autocomplete="off" oninput="runSearch()" onkeydown="handleSearchKeydown(event)">
+      <button class="search-close-btn" onclick="closeSearch()" title="Close (Esc)">✕</button>
+    </div>
+    <div class="search-help" id="searchHelp">
+      <div class="search-help-title">Try:</div>
+      <div class="search-suggestions">
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('Genesis 3:9')">Genesis 3:9</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('John 3:16')">John 3:16</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('serpent')">serpent</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('Eden')">Eden</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('covenant')">covenant</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('Moses')">Moses</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('Enoch')">Enoch</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('Josephus')">Josephus</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('H7225')">H7225</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('G26')">G26 (agape)</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('kingdom')">kingdom</button>
+        <button class="search-suggestion-chip" onclick="setSearchAndRun('where art thou')">"where art thou"</button>
+      </div>
+      <div class="search-recent" id="searchRecent"></div>
+      <div class="search-help-foot">Searches verses, dictionary, lexicon, people, places, themes, chronological events, companion sources (Enoch / Josephus / LXX / Tanakh), translation-loss notes, cultural context, and Strong's numbers.</div>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
 </div>
 
 <div class="def-overlay" id="defOverlay" onclick="closeDef()"></div>
@@ -261,6 +293,7 @@
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
 <script src="js/app.js"></script>
+<script src="js/search.js"></script>
 
 
 <script>
