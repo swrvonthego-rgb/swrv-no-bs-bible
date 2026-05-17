@@ -891,6 +891,9 @@
   window.parseSearchReference = parseReference;
   window.buildSearchIndex = buildIndex;
   window.runSearchQuery = runSearchQuery;
+  // Called by the bible-preloader after new books load so search re-indexes
+  // them on the next query instead of returning the stale cached index.
+  window.invalidateSearchIndex = function(){ SEARCH_INDEX = null; INDEX_BUILD_LOG = null; };
 
   // Keyboard shortcut — Cmd/Ctrl+K opens search
   document.addEventListener('keydown', (e) => {

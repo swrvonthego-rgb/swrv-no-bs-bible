@@ -292,8 +292,11 @@
 <script src="js/enrichments.js"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js"></script>
-<script src="js/search.js"></script>
+<script src="js/app.js?v=20260517a"></script>
+<script src="js/search.js?v=20260517a"></script>
+<!-- Background-load every canonical book at idle so global search isn't
+     limited to whatever chapter the user has navigated to. -->
+<script src="js/preload-bible.js?v=20260517a" defer></script>
 
 
 <script>

@@ -832,14 +832,16 @@ function renderVerse(v){
   }
   verseHtml.push('</div>');
   // Genesis 1-4 enrichments (Pre-history, plot panels, heartbeat, culture deep)
-  try{
-    const vnum=parseInt(v.ref.match(/:(\d+)$/)[1]);
-    const ch=parseInt(v.ref.match(/^Genesis (\d+)/i)[1]||v.ref.match(/^Gen (\d+)/i)[1]||0);
-    if(ch>=1&&ch<=4){
-      const enrichments=renderGen14Enrichments(ch,vnum);
-      if(enrichments)return verseHtml.join('')+enrichments;
-    }
-  }catch(e){console.warn('Gen 1-4 enrichment error:',e);}
+  if(currentBook==='Genesis'){
+    try{
+      const vnum=parseInt(v.ref.match(/:(\d+)$/)[1]);
+      const ch=parseInt(v.ref.match(/^Genesis (\d+)/i)[1]||v.ref.match(/^Gen (\d+)/i)[1]||0);
+      if(ch>=1&&ch<=4){
+        const enrichments=renderGen14Enrichments(ch,vnum);
+        if(enrichments)return verseHtml.join('')+enrichments;
+      }
+    }catch(e){console.warn('Gen 1-4 enrichment error:',e);}
+  }
   return verseHtml.join('');
 }
 
