@@ -578,6 +578,69 @@
       }
     }
 
+    // === 12a. Group / Nation / Tribe / Sect cards ===
+    if(window.GROUP_NATIONS){
+      for(const key in window.GROUP_NATIONS){
+        const g = window.GROUP_NATIONS[key];
+        const bits = [key,g.name,(g.altNames||[]).join(' '),g.origin,g.region,g.language,(g.cities||[]).join(' '),g.political,g.religion,g.customs,g.appearance,g.relationToIsrael,(g.relatedPeople||[]).join(' '),(g.relatedPlaces||[]).join(' '),g.misunderstood,(g.sources||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'group_nation',
+          category:'Group / Nation',
+          catShort:'group',
+          catBadge:'🌐',
+          title: g.name || key,
+          searchText: bits,
+          preview: (g.origin || g.region || '').slice(0,200),
+          reference: g.region || '',
+          priority: 74,
+          action: { type:'group_card', key: key }
+        });
+        log.group_nation = (log.group_nation||0) + 1;
+      }
+    }
+
+    // === 12b. Religion / Gods / Belief-system cards ===
+    if(window.RELIGION_CARDS){
+      for(const key in window.RELIGION_CARDS){
+        const r = window.RELIGION_CARDS[key];
+        const bits = [key,r.name,(r.altNames||[]).join(' '),r.associated,(r.references||[]).join(' '),r.description,r.practices,r.whyMatters,r.contrastYHWH,r.misunderstood,(r.sources||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'religion',
+          category:'Religion / Gods',
+          catShort:'religion',
+          catBadge:'⛩',
+          title: r.name || key,
+          searchText: bits,
+          preview: (r.description || '').slice(0,200),
+          reference: r.associated || '',
+          priority: 73,
+          action: { type:'religion_card', key: key }
+        });
+        log.religion = (log.religion||0) + 1;
+      }
+    }
+
+    // === 12c. Person Context overlay — make the additional schema searchable ===
+    if(window.PERSON_CONTEXT){
+      for(const key in window.PERSON_CONTEXT){
+        const c = window.PERSON_CONTEXT[key];
+        const bits = [key,c.tribe,c.family,c.timePeriod,c.language,c.beliefs,c.political,c.covenant,c.whyMatters,c.misunderstood,(c.relatedPeople||[]).join(' '),(c.relatedPlaces||[]).join(' '),(c.relatedThemes||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'person_context',
+          category:'People',
+          catShort:'people',
+          catBadge:'👤',
+          title: key + ' — context',
+          searchText: bits,
+          preview: (c.whyMatters || c.tribe || c.beliefs || '').slice(0,200),
+          reference: c.timePeriod || '',
+          priority: 76,
+          action: { type:'person', key: key }
+        });
+        log.person_context = (log.person_context||0) + 1;
+      }
+    }
+
     // === 12. Instruction Classification Cards (passage-keyed) ===
     if(window.INSTRUCTION_CARDS){
       for(const passage in window.INSTRUCTION_CARDS){
@@ -1023,6 +1086,10 @@
       if(typeof showCulturalCard === 'function') showCulturalCard(action.passage);
     } else if(action.type === 'instruction_card'){
       if(typeof showInstruction === 'function') showInstruction(action.passage);
+    } else if(action.type === 'group_card'){
+      if(typeof showGroupCard === 'function') showGroupCard(action.key);
+    } else if(action.type === 'religion_card'){
+      if(typeof showReligionCard === 'function') showReligionCard(action.key);
     }
   }
 

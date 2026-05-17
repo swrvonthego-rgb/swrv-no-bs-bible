@@ -1517,6 +1517,53 @@ function showDef(word, opts){
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
 
+// Render a Group / Nation / Tribe / Sect card from window.GROUP_NATIONS.
+function showGroupCard(key){
+  if(!window.GROUP_NATIONS) return;
+  const g = window.GROUP_NATIONS[key]; if(!g) return;
+  const popup = document.getElementById('defPopup'); popup.classList.remove('people','strongs');
+  const html = ['<div class="def-word">🌐 '+escapeHtml(g.name||key)+'</div>'];
+  if(g.altNames && g.altNames.length) html.push('<div class="def-translit">Also: '+g.altNames.map(escapeHtml).join(' · ')+'</div>');
+  if(g.origin) html.push('<div class="def-section"><div class="def-section-label">Origin</div><div class="def-section-text">'+escapeHtml(g.origin)+'</div></div>');
+  if(g.region) html.push('<div class="def-section"><div class="def-section-label">Region / Geography</div><div class="def-section-text">'+escapeHtml(g.region)+'</div></div>');
+  if(g.language) html.push('<div class="def-section"><div class="def-section-label">Language / Culture</div><div class="def-section-text">'+escapeHtml(g.language)+'</div></div>');
+  if(g.cities && g.cities.length) html.push('<div class="def-section"><div class="def-section-label">Major Cities / Territories</div><div class="def-section-text">'+g.cities.map(escapeHtml).join(' · ')+'</div></div>');
+  if(g.political) html.push('<div class="def-section"><div class="def-section-label">Political Role</div><div class="def-section-text">'+escapeHtml(g.political)+'</div></div>');
+  if(g.religion) html.push('<div class="def-section"><div class="def-section-label">Religion / Gods</div><div class="def-section-text">'+escapeHtml(g.religion)+'</div></div>');
+  if(g.customs) html.push('<div class="def-section"><div class="def-section-label">Customs / Social Patterns</div><div class="def-section-text">'+escapeHtml(g.customs)+'</div></div>');
+  if(g.appearance) html.push('<div class="def-section"><div class="def-section-label">Appearance — Regional / Historical Context</div><div class="def-section-text">'+escapeHtml(g.appearance)+'</div></div>');
+  if(g.relationToIsrael) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Relationship to Israel / Early Church</div><div class="def-section-text">'+escapeHtml(g.relationToIsrael)+'</div></div>');
+  if(g.relatedPeople && g.relatedPeople.length) html.push('<div class="def-section"><div class="def-section-label">Related People</div><div class="def-section-text">'+g.relatedPeople.map(escapeHtml).join(' · ')+'</div></div>');
+  if(g.relatedPlaces && g.relatedPlaces.length) html.push('<div class="def-section"><div class="def-section-label">Related Places</div><div class="def-section-text">'+g.relatedPlaces.map(escapeHtml).join(' · ')+'</div></div>');
+  if(g.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(g.misunderstood)+'</div></div>');
+  if(g.sources && g.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+g.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(g.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(g.confidence)+'</div>');
+  document.getElementById('defContent').innerHTML=html.join('');
+  popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
+}
+window.showGroupCard = showGroupCard;
+
+// Render a Religion / God / Belief-system card from window.RELIGION_CARDS.
+function showReligionCard(key){
+  if(!window.RELIGION_CARDS) return;
+  const r = window.RELIGION_CARDS[key]; if(!r) return;
+  const popup = document.getElementById('defPopup'); popup.classList.remove('people','strongs');
+  const html = ['<div class="def-word">⛩ '+escapeHtml(r.name||key)+'</div>'];
+  if(r.altNames && r.altNames.length) html.push('<div class="def-translit">Also: '+r.altNames.map(escapeHtml).join(' · ')+'</div>');
+  if(r.associated) html.push('<div class="def-section"><div class="def-section-label">Associated People / Nation</div><div class="def-section-text">'+escapeHtml(r.associated)+'</div></div>');
+  if(r.references && r.references.length) html.push('<div class="def-section"><div class="def-section-label">Bible References</div><div class="def-section-text">'+r.references.map(escapeHtml).join(' · ')+'</div></div>');
+  if(r.description) html.push('<div class="def-section"><div class="def-section-label">Description</div><div class="def-section-text">'+escapeHtml(r.description)+'</div></div>');
+  if(r.practices) html.push('<div class="def-section"><div class="def-section-label">Worship Practices</div><div class="def-section-text">'+escapeHtml(r.practices)+'</div></div>');
+  if(r.whyMatters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why It Matters In The Passage</div><div class="def-section-text">'+escapeHtml(r.whyMatters)+'</div></div>');
+  if(r.contrastYHWH) html.push('<div class="def-section"><div class="def-section-label">Contrast with YHWH</div><div class="def-section-text">'+escapeHtml(r.contrastYHWH)+'</div></div>');
+  if(r.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(r.misunderstood)+'</div></div>');
+  if(r.sources && r.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+r.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(r.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(r.confidence)+'</div>');
+  document.getElementById('defContent').innerHTML=html.join('');
+  popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
+}
+window.showReligionCard = showReligionCard;
+
 function showPerson(name){
   let p=window.PEOPLES[name];
   // Handle cases where a name in PEOPLES might be referenced by short form
@@ -1538,6 +1585,23 @@ function showPerson(name){
   if(p.diet)html.push('<div class="def-section"><div class="def-section-label">Diet & Daily Life</div><div class="def-section-text">'+escapeHtml(p.diet)+'</div></div>');
   if(p.notable)html.push('<div class="def-section"><div class="def-section-label">Notable</div><div class="def-section-text">'+escapeHtml(p.notable)+'</div></div>');
   if(p.sources)html.push('<div class="def-section"><div class="def-section-label">Sources (Rule 13)</div><div class="def-section-text"><i>'+escapeHtml(p.sources)+'</i></div></div>');
+  // ---- Person Context overlay (window.PERSON_CONTEXT) — additional schema layers ----
+  const ctx = (window.PERSON_CONTEXT && (window.PERSON_CONTEXT[name] || window.PERSON_CONTEXT[displayName])) || null;
+  if(ctx){
+    if(ctx.tribe) html.push('<div class="def-section"><div class="def-section-label">Tribe / People Group</div><div class="def-section-text">'+escapeHtml(ctx.tribe)+'</div></div>');
+    if(ctx.family) html.push('<div class="def-section"><div class="def-section-label">Family Line</div><div class="def-section-text">'+escapeHtml(ctx.family)+'</div></div>');
+    if(ctx.timePeriod) html.push('<div class="def-section"><div class="def-section-label">Time Period / Era</div><div class="def-section-text">'+escapeHtml(ctx.timePeriod)+'</div></div>');
+    if(ctx.language) html.push('<div class="def-section"><div class="def-section-label">Language / Culture</div><div class="def-section-text">'+escapeHtml(ctx.language)+'</div></div>');
+    if(ctx.beliefs) html.push('<div class="def-section"><div class="def-section-label">Beliefs / Gods / Religious World</div><div class="def-section-text">'+escapeHtml(ctx.beliefs)+'</div></div>');
+    if(ctx.political) html.push('<div class="def-section"><div class="def-section-label">Political Setting</div><div class="def-section-text">'+escapeHtml(ctx.political)+'</div></div>');
+    if(ctx.covenant) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Covenant Relationship</div><div class="def-section-text">'+escapeHtml(ctx.covenant)+'</div></div>');
+    if(ctx.whyMatters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why They Matter</div><div class="def-section-text">'+escapeHtml(ctx.whyMatters)+'</div></div>');
+    if(ctx.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(ctx.misunderstood)+'</div></div>');
+    if(ctx.relatedPeople && ctx.relatedPeople.length) html.push('<div class="def-section"><div class="def-section-label">Related People</div><div class="def-section-text">'+ctx.relatedPeople.map(escapeHtml).join(' · ')+'</div></div>');
+    if(ctx.relatedPlaces && ctx.relatedPlaces.length) html.push('<div class="def-section"><div class="def-section-label">Related Places</div><div class="def-section-text">'+ctx.relatedPlaces.map(escapeHtml).join(' · ')+'</div></div>');
+    if(ctx.relatedThemes && ctx.relatedThemes.length) html.push('<div class="def-section"><div class="def-section-label">Related Themes</div><div class="def-section-text">'+ctx.relatedThemes.map(escapeHtml).join(' · ')+'</div></div>');
+    if(ctx.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(ctx.confidence)+'</div>');
+  }
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
