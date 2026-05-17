@@ -1113,26 +1113,26 @@ function renderVerse(v){
     verseHtml.push('<details class="strongs-roots-panel"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
   }
   if(v.kingdomLens){
-    verseHtml.push('<div class="kingdom-lens">');
-    verseHtml.push('<div class="kingdom-lens-label">⚜ KINGDOM LENS</div>');
+    verseHtml.push('<details class="collapsible-section kingdom-lens">');
+    verseHtml.push('<summary><span class="kingdom-lens-label">⚜ KINGDOM LENS</span></summary>');
     verseHtml.push('<div class="kingdom-lens-text">'+escapeHtml(v.kingdomLens)+'</div>');
-    verseHtml.push('</div>');
+    verseHtml.push('</details>');
   }
   if(v.cultural){
-    verseHtml.push('<div class="cultural-panel">');
-    verseHtml.push('<div class="cultural-label">🌍 CULTURAL CONTEXT</div>');
+    verseHtml.push('<details class="collapsible-section cultural-panel">');
+    verseHtml.push('<summary><span class="cultural-label">🌍 CULTURAL CONTEXT</span> <span class="collapsible-cue">'+escapeHtml(v.cultural.title||'')+'</span></summary>');
     verseHtml.push('<div class="cultural-title">'+escapeHtml(v.cultural.title)+'</div>');
     verseHtml.push('<div class="cultural-detail">'+escapeHtml(v.cultural.detail)+'</div>');
     if(v.cultural.sources)verseHtml.push('<div class="cultural-source">Sources: '+escapeHtml(v.cultural.sources)+'</div>');
-    verseHtml.push('</div>');
+    verseHtml.push('</details>');
   }
   if(v.variants&&v.variants.length>0){
     for(const variant of v.variants){
-      verseHtml.push('<div class="translation-flag">');
-      verseHtml.push('<span class="flag-label">⚠ TRANSLATION LOSS</span>');
+      verseHtml.push('<details class="collapsible-section translation-flag">');
+      verseHtml.push('<summary><span class="flag-label">⚠ TRANSLATION LOSS</span> <span class="collapsible-cue">'+escapeHtml(variant.label||'')+'</span></summary>');
       verseHtml.push('<div class="flag-title">'+escapeHtml(variant.label)+'</div>');
       verseHtml.push('<div class="flag-note">'+escapeHtml(variant.note)+'</div>');
-      verseHtml.push('</div>');
+      verseHtml.push('</details>');
     }
   }
   const xrefId=refId+'_xref';

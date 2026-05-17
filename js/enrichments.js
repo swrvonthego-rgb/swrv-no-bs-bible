@@ -215,14 +215,14 @@ function renderGen14Enrichments(ch, verseNum){
     const a = AMP_DATA[k];
     const m = k.match(/^(\d+):(\d+)/);
     if(parseInt(m[2]) !== verseNum) continue;
-    h += '<div class="amp-text">';
-    h += '<div style="font-size:11px;color:var(--strongs);font-weight:700;letter-spacing:0.05em;margin-bottom:8px;">AMP-STYLE — HEBREW-AUDITED RENDERING ('+book+' '+k+')</div>';
+    h += '<details class="collapsible-section amp-text">';
+    h += '<summary><span style="font-size:11px;color:var(--strongs);font-weight:700;letter-spacing:0.05em;">AMP-STYLE — HEBREW-AUDITED RENDERING ('+book+' '+k+')</span></summary>';
     const text = a.text.replace(/\[([^\]]+)\]/g, '<span style="color:var(--gold);font-style:italic;font-size:13px;">[$1]</span>');
-    h += '<div class="amp-text-content">'+text+'</div>';
+    h += '<div class="amp-text-content" style="margin-top:8px;">'+text+'</div>';
     if(a.audit) h += '<div class="amp-audit"><b>Audit:</b> '+a.audit+'</div>';
-    h += '</div>';
+    h += '</details>';
   }
-  
+
   // Plot panels — render at end of scene
   const plotKeys = Object.keys(PLOT_PANELS_DATA || {}).filter(k => {
     const m = k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
@@ -232,13 +232,13 @@ function renderGen14Enrichments(ch, verseNum){
   });
   for(const k of plotKeys){
     const p = PLOT_PANELS_DATA[k];
-    h += '<div class="plot-panel">';
-    h += '<h4>'+p.scene+' ('+k+')</h4>';
+    h += '<details class="collapsible-section plot-panel">';
+    h += '<summary>📖 '+p.scene+' <span class="collapsible-cue">('+k+')</span></summary>';
     h += '<div class="plot-plain">'+p.plain+'</div>';
     if(p.why_it_matters) h += '<div class="plot-why">'+p.why_it_matters+'</div>';
-    h += '</div>';
+    h += '</details>';
   }
-  
+
   // Heartbeat
   const hbKeys = Object.keys(HEARTBEAT_DATA || {}).filter(k => {
     const m = k.match(/^(\d+):(\d+)(?:-(\d+))?$/);
@@ -248,13 +248,13 @@ function renderGen14Enrichments(ch, verseNum){
   });
   for(const k of hbKeys){
     const hb = HEARTBEAT_DATA[k];
-    h += '<div class="heartbeat-callout">';
-    h += '<h4>♥ '+hb.title+'</h4>';
+    h += '<details class="collapsible-section heartbeat-callout">';
+    h += '<summary>♥ '+hb.title+'</summary>';
     h += '<div class="heartbeat-body">'+hb.body+'</div>';
     if(hb.rule) h += '<div class="heartbeat-rule">'+hb.rule+'</div>';
-    h += '</div>';
+    h += '</details>';
   }
-  
+
   // Culture boxes
   const cbKeys = Object.keys(CULTURE_DATA || {}).filter(k => {
     const cb = CULTURE_DATA[k];
@@ -266,11 +266,11 @@ function renderGen14Enrichments(ch, verseNum){
   });
   for(const k of cbKeys){
     const cb = CULTURE_DATA[k];
-    h += '<div class="culture-box-deep">';
-    h += '<h4>✎ CULTURE: '+cb.title+'</h4>';
+    h += '<details class="collapsible-section culture-box-deep">';
+    h += '<summary>✎ CULTURE: '+cb.title+'</summary>';
     h += '<div class="culture-body">'+cb.body+'</div>';
     if(cb.sources) h += '<div class="culture-sources"><b>Sources:</b> '+cb.sources+'</div>';
-    h += '</div>';
+    h += '</details>';
   }
   
   return h + renderCrossRefs(book, ch, verseNum);
@@ -297,8 +297,9 @@ function renderCrossRefs(book, ch, verseNum){
     if(verseNum !== refEnd) continue;
     const parallels = refs[key];
     if(!parallels || !parallels.length) continue;
-    h += '<div class="cross-refs-panel" style="margin:14px 0;padding:14px;background:rgba(212,175,55,0.07);border-left:3px solid var(--gold);border-radius:5px;">';
-    h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin-bottom:10px;">📜 CROSS-SOURCE PARALLELS — '+key+'</div>';
+    h += '<details class="collapsible-section cross-refs-panel" style="margin:14px 0;padding:14px;background:rgba(212,175,55,0.07);border-left:3px solid var(--gold);border-radius:5px;">';
+    h += '<summary style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--gold);">📜 CROSS-SOURCE PARALLELS — '+key+'</summary>';
+    h += '<div style="margin-top:10px;">';
     for(const p of parallels){
       h += '<div style="margin-bottom:12px;padding:10px;background:rgba(0,0,0,0.18);border-radius:4px;">';
       h += '<div style="display:flex;justify-content:space-between;align-items:start;gap:8px;flex-wrap:wrap;">';
@@ -317,7 +318,7 @@ function renderCrossRefs(book, ch, verseNum){
       }
       h += '</div>';
     }
-    h += '</div>';
+    h += '</div></details>';
   }
   return h;
 }
