@@ -16,15 +16,16 @@
   var inflight = 0;
   var loaded = 0;
   var total = queue.length;
-  var MAX_PARALLEL = 4;
+  var MAX_PARALLEL = 6;
+  window.SWRV_PRELOAD_STATUS = { loaded: 0, total: total, complete: false };
 
   function loadOne(slug, done){
     if(window.BIBLE && window.BIBLE[slug]){ done(); return; }
     var s = document.createElement('script');
     s.src = 'data/bible/' + slug + '.js';
     s.async = true;
-    s.onload = function(){ loaded++; done(); };
-    s.onerror = function(){ console.warn('[preload] missing data/bible/' + slug + '.js'); done(); };
+    s.onload = function(){ loaded++; window.SWRV_PRELOAD_STATUS.loaded = loaded; done(); };
+    s.onerror = function(){ console.warn('[preload] missing data/bible/' + slug + '.js'); window.SWRV_PRELOAD_STATUS.loaded = loaded; done(); };
     document.head.appendChild(s);
   }
 
@@ -37,6 +38,8 @@
         if(queue.length){
           idle(pump);
         } else if(inflight === 0){
+          window.SWRV_PRELOAD_STATUS.loaded = loaded;
+          window.SWRV_PRELOAD_STATUS.complete = true;
           if(typeof window.invalidateSearchIndex === 'function'){
             window.invalidateSearchIndex();
           }

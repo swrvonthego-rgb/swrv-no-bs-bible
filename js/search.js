@@ -127,14 +127,25 @@
     // === 1. Verses (every verse, BSB primary text searchable) ===
     const addVerse = (book, ch, vn, v) => {
       const text = v.synthesized || v.text || '';
-      const kjv = (v.sources && v.sources.KJV) ? v.sources.KJV.text : '';
+      const sourceText = v.sources ? Object.keys(v.sources).map(k => (v.sources[k] && v.sources[k].text) || '').join(' ') : '';
+      const tagged = (v.definableWords||[]).join(' ') + ' ' + (v.peopleInVerse||[]).join(' ') + ' ' + (v.placesInVerse||[]).join(' ') + ' ' + (v.themesInVerse||[]).join(' ');
+      const roots = (v.strongsTags||[]).map(t => {
+        const id=t.sId||'';
+        const isG=id.startsWith('G');
+        const lex=isG ? (window.STRONGS_GRK && window.STRONGS_GRK[id.replace(/^G/,'')]) : (window.STRONGS_HEB && window.STRONGS_HEB[id]);
+        return [id, t.w, lex&&(lex.grk||lex.lemma||lex.xlit||lex.def||lex.strongs_def||lex.kjv_def)].filter(Boolean).join(' ');
+      }).join(' ');
+      const displayedText = (text + ' ' + sourceText).toLowerCase();
+      const supportText = (tagged + ' ' + roots).toLowerCase();
       idx.push({
         type: 'verse',
         category: 'Scripture Passages',
         catShort: 'scripture',
         catBadge: '📖',
         title: book + ' ' + ch + ':' + vn,
-        searchText: (text + ' ' + kjv).toLowerCase(),
+        searchText: (text + ' ' + sourceText + ' ' + tagged + ' ' + roots).toLowerCase(),
+        displayedText: displayedText,
+        supportText: supportText,
         preview: text,
         reference: book + ' ' + ch + ':' + vn,
         priority: 100,
@@ -179,6 +190,23 @@
           priority: 80,
           action: { type:'definition', key }
         });
+        log.definitions++;
+      }
+    }
+
+    // === 2b. Supplemental Definition Bible + regular English words ===
+    if(window.SWRV_TERM_SUPPLEMENTS){
+      for(const key in window.SWRV_TERM_SUPPLEMENTS){
+        const d=window.SWRV_TERM_SUPPLEMENTS[key]; if(!d) continue;
+        const bits=[key,d.def,d.hebrew,d.greek,d.warning].filter(Boolean).join(' ');
+        idx.push({type:'definition',category:'Dictionary / Glossary',catShort:'dictionary',catBadge:'📔',title:key,searchText:bits.toLowerCase(),preview:(d.def||'').slice(0,180),reference:d.greek||d.hebrew||'',priority:86,action:{type:'definition',key}});
+        log.definitions++;
+      }
+    }
+    if(window.SWRV_REGULAR_WORDS){
+      for(const key in window.SWRV_REGULAR_WORDS){
+        const body=window.SWRV_REGULAR_WORDS[key];
+        idx.push({type:'regular_word',category:'Dictionary / Glossary',catShort:'dictionary',catBadge:'📔',title:key,searchText:(key+' '+body).toLowerCase(),preview:String(body).slice(0,180),reference:'Regular English / older Bible word',priority:70,action:{type:'definition',key}});
         log.definitions++;
       }
     }
@@ -411,9 +439,10 @@
     }
 
     // === 7. BDB Hebrew Lexicon (only top-level lemmas to avoid noise) ===
-    if(window.BDB_HEBREW){
-      for(const key in window.BDB_HEBREW){
-        const e = window.BDB_HEBREW[key];
+    const _BDB_SRC = window.BDB_HEB || window.BDB_HEBREW;
+    if(_BDB_SRC){
+      for(const key in _BDB_SRC){
+        const e = _BDB_SRC[key];
         if(!e || !e.lemma) continue;
         // Only first BDB entry per Strong's number is most relevant
         if(key.match(/\.\d+$/)) continue;
@@ -481,6 +510,95 @@
       }
     }
 
+    // === 9. English Bible-Word Dictionary (deep entries) ===
+    if(window.ENGLISH_BIBLE_DICT){
+      for(const key in window.ENGLISH_BIBLE_DICT){
+        const e = window.ENGLISH_BIBLE_DICT[key];
+        const originalsText = (e.originals||[]).map(function(o){return [o.lang,o.word,o.translit,o.strongs,o.note].filter(Boolean).join(' ');}).join(' ');
+        const bits = [key,e.word,e.plain,e.deep,e.misunderstood,e.matters,e.cultural,e.kingdomSignificance,e.notMean,(e.rangeOfMeaning||[]).join(' '),(e.relatedWords||[]).join(' '),(e.relatedVerses||[]).join(' '),originalsText,e.category].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'english_dict',
+          category:'Dictionary / Glossary',
+          catShort:'dictionary',
+          catBadge:'📘',
+          title: e.word || key,
+          searchText: bits,
+          preview: (e.plain || e.deep || '').slice(0,180),
+          reference: e.category || 'English Bible-Word Dictionary',
+          priority: 90,
+          action: { type:'definition', key: key }
+        });
+        log.english_dict = (log.english_dict||0) + 1;
+      }
+    }
+
+    // === 10. Context-Sense disambiguator (each Strong's variant searchable by gloss) ===
+    if(window.CONTEXT_SENSE){
+      for(const word in window.CONTEXT_SENSE){
+        const root = window.CONTEXT_SENSE[word];
+        if(!root || !root.byStrongs) continue;
+        for(const sId in root.byStrongs){
+          const v = root.byStrongs[sId];
+          const bits = [word,sId,v.lang,v.word,v.translit,v.gloss].filter(Boolean).join(' ').toLowerCase();
+          idx.push({
+            type:'context_sense',
+            category: (sId.startsWith('G')?'Greek Words':(sId.startsWith('H')?'Hebrew Words':'Dictionary / Glossary')),
+            catShort: (sId.startsWith('G')?'greek':(sId.startsWith('H')?'hebrew':'dictionary')),
+            catBadge: '🔁',
+            title: word + ' — ' + sId + ' (' + (v.translit||v.word||'') + ')',
+            searchText: bits,
+            preview: (v.gloss||'').slice(0,180),
+            reference: sId,
+            priority: 78,
+            action: { type:'strongs', id: sId }
+          });
+          log.context_sense = (log.context_sense||0) + 1;
+        }
+      }
+    }
+
+    // === 11. Cultural Context Cards (passage-keyed) ===
+    if(window.CULTURAL_CARDS){
+      for(const passage in window.CULTURAL_CARDS){
+        const c = window.CULTURAL_CARDS[passage];
+        const bits = [passage,c.title,c.cultural,c.misunderstood,c.matters,(c.relatedVerses||[]).join(' '),(c.sources||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'cultural_card',
+          category:'Cultural Context',
+          catShort:'cultural',
+          catBadge:'🌍',
+          title: c.title || passage,
+          searchText: bits,
+          preview: (c.cultural||'').slice(0,200),
+          reference: passage,
+          priority: 72,
+          action: { type:'cultural_card', passage: passage }
+        });
+        log.cultural_card = (log.cultural_card||0) + 1;
+      }
+    }
+
+    // === 12. Instruction Classification Cards (passage-keyed) ===
+    if(window.INSTRUCTION_CARDS){
+      for(const passage in window.INSTRUCTION_CARDS){
+        const i = window.INSTRUCTION_CARDS[passage];
+        const bits = [passage,i.title,i.speaker,i.addressed,i.commanded,i.category,i.scope,i.misunderstood,i.text,(i.sources||[]).join(' ')].filter(Boolean).join(' ').toLowerCase();
+        idx.push({
+          type:'instruction_card',
+          category:'Instruction Cards',
+          catShort:'instruction',
+          catBadge:'📜',
+          title: i.title || passage,
+          searchText: bits,
+          preview: (i.commanded||'').slice(0,200),
+          reference: passage,
+          priority: 71,
+          action: { type:'instruction_card', passage: passage }
+        });
+        log.instruction_card = (log.instruction_card||0) + 1;
+      }
+    }
+
     SEARCH_INDEX = idx;
     INDEX_BUILD_LOG = log;
     console.log('SWRV Search: index built — ' + idx.length + ' records', log);
@@ -534,7 +652,28 @@
     }
 
     const index = buildIndex();
+
+    // If this is an exact verse reference, do not bury the user under unrelated matches.
+    // A reference search should behave like navigation first, search second.
+    if(ref && ref.verse){
+      const exactVerse = index.find(rec => rec.action && rec.action.type === 'verse' && rec.action.book === ref.book && rec.action.chapter === ref.chapter && rec.action.verse === ref.verse);
+      if(exactVerse && results[0]){
+        results[0].preview = exactVerse.preview || results[0].preview;
+        results[0].reference = exactVerse.reference || results[0].reference;
+      }
+      return { query, results, total: results.length, indexLog: INDEX_BUILD_LOG };
+    }
+
     if(isShort) return { query, results, total: results.length };
+
+    // If this is a chapter reference, show that chapter first instead of broad token noise.
+    if(ref && ref.chapter && !ref.verse){
+      const chapterRows = index.filter(rec => rec.action && rec.action.type === 'verse' && rec.action.book === ref.book && rec.action.chapter === ref.chapter).slice(0, 220);
+      for(const r of chapterRows){
+        results.push({type:r.type,category:r.category,catShort:r.catShort,catBadge:r.catBadge,title:r.title,preview:r.preview,reference:r.reference,matchedIn:'chapter reference',score:9000,action:r.action});
+      }
+      return { query, results, total: results.length, indexLog: INDEX_BUILD_LOG };
+    }
 
     // Score every index record
     const scored = [];
@@ -551,24 +690,40 @@
       let score = 0;
       let matchedIn = null;
       const txt = rec.searchText;
-      // Exact phrase match — biggest boost
-      if(txt.indexOf(phrase) !== -1){
-        score += rec.priority * 10;
+      const displayedTxt = rec.displayedText || txt;
+      const supportTxt = rec.supportText || '';
+      // Exact phrase match — biggest boost. For Scripture, displayed Bible text
+      // is treated as higher quality than support/root metadata so searches like
+      // “Christ” do not look like random OT root matches are better than NT verses.
+      if(displayedTxt.indexOf(phrase) !== -1){
+        score += rec.priority * 14;
+        matchedIn = 'Bible text';
+        if(phraseRe.test(displayedTxt)) score += 350;
+      } else if(txt.indexOf(phrase) !== -1){
+        score += rec.priority * 7;
         matchedIn = 'phrase';
-        // Boost if it's a word boundary match
-        if(phraseRe.test(txt)) score += 200;
+        if(phraseRe.test(txt)) score += 120;
       }
-      // Token matches
+      // Token matches. Displayed text gets full credit; support metadata gets
+      // smaller credit so definitions/roots enrich search without hijacking it.
       let tokenHits = 0;
+      let displayedTokenHits = 0;
       for(const tok of tokens){
         if(txt.indexOf(tok) !== -1) tokenHits++;
+        if(displayedTxt.indexOf(tok) !== -1) displayedTokenHits++;
       }
-      if(tokenHits === tokens.length && tokens.length>0){
-        score += rec.priority * 4;
+      if(displayedTokenHits === tokens.length && tokens.length>0){
+        score += rec.priority * 5;
+        if(!matchedIn) matchedIn = 'Bible text tokens';
+      } else if(tokenHits === tokens.length && tokens.length>0){
+        score += rec.priority * 2;
         if(!matchedIn) matchedIn = 'all tokens';
+      } else if(displayedTokenHits > 0){
+        score += rec.priority * displayedTokenHits;
+        if(!matchedIn) matchedIn = 'Bible text partial';
       } else if(tokenHits > 0){
-        score += rec.priority * tokenHits;
-        if(!matchedIn) matchedIn = 'partial';
+        score += Math.max(8, rec.priority * tokenHits * 0.35);
+        if(!matchedIn) matchedIn = 'metadata partial';
       }
 
       // Title hits — significant boost
@@ -588,8 +743,72 @@
     }
 
     scored.sort((a,b) => b.score - a.score);
-    // Cap at 80 results total
-    for(const s of scored.slice(0, 80)){
+
+    // For multi-word searches, if exact phrase matches exist, show those first
+    // and avoid drowning them in common-word token noise. Example: “where art thou”.
+    const exactPhraseRows = (tokens.length >= 2 && !ref) ? scored.filter(x => {
+      const r = x.rec || {};
+      const dt = r.displayedText || r.searchText || '';
+      const tt = (r.title || '').toLowerCase();
+      return dt.indexOf(phrase) !== -1 || tt.indexOf(phrase) !== -1;
+    }) : [];
+    if(exactPhraseRows.length){
+      scored.length = 0;
+      scored.push.apply(scored, exactPhraseRows.concat(
+        // Keep non-scripture source/context matches if they phrase-match too.
+        []
+      ));
+    }
+
+    // Do not let high-frequency words get trapped in the first loaded books.
+    // Example: "Jesus" appears so often that a simple top-80 cap can show
+    // Matthew/Mark only, making the user think Luke-Revelation are missing.
+    // For large Scripture result sets, spread results across every available book
+    // while preserving score order inside each book.
+    function diversifyScriptureResults(rows){
+      const scripture = rows.filter(x => x.rec && x.rec.category === 'Scripture Passages' && x.rec.action && x.rec.action.book);
+      const other = rows.filter(x => !(x.rec && x.rec.category === 'Scripture Passages' && x.rec.action && x.rec.action.book));
+      if(scripture.length < 80) return rows;
+
+      // Only diversify Scripture rows where the user's word/phrase is actually
+      // visible in the Bible/translation text. Support-only hits (themes,
+      // definableWords, root metadata) stay after direct Bible-text hits. This
+      // prevents searches like “Christ” from being flooded by OT “anointing”
+      // metadata before the NT verses that actually say Christ.
+      const directScripture = scripture.filter(row => {
+        const dt = (row.rec.displayedText || '').toLowerCase();
+        const title = (row.rec.title || '').toLowerCase();
+        return dt.indexOf(phrase) !== -1 || title.indexOf(phrase) !== -1;
+      });
+      const supportScripture = scripture.filter(row => !directScripture.includes(row));
+      if(directScripture.length < 20) return rows;
+
+      const order = (window.BIBLE_INDEX || []).map(b => b.slug);
+      const buckets = {};
+      for(const row of directScripture){
+        const book = row.rec.action.book;
+        if(!buckets[book]) buckets[book] = [];
+        buckets[book].push(row);
+      }
+      const diversified = [];
+      let added = true;
+      const maxScripture = 360;
+      while(added && diversified.length < maxScripture){
+        added = false;
+        for(const book of order){
+          const bucket = buckets[book];
+          if(bucket && bucket.length && diversified.length < maxScripture){
+            diversified.push(bucket.shift());
+            added = true;
+          }
+        }
+      }
+      // Keep source cards, then lower-confidence support-only Scripture hits.
+      return diversified.concat(other.slice(0, 160)).concat(supportScripture.slice(0, 80));
+    }
+
+    const finalRows = diversifyScriptureResults(scored).slice(0, 520);
+    for(const s of finalRows){
       const r = s.rec;
       results.push({
         type: r.type,
@@ -605,7 +824,7 @@
       });
     }
 
-    return { query, results, total: results.length };
+    return { query, results, total: results.length, indexLog: INDEX_BUILD_LOG };
   }
 
   // --------------------------- Recent Searches ---------------------------
@@ -694,13 +913,18 @@
       html.push('</div>');
     }
 
+    // Search coverage notice: lets the user know if background indexing is still finishing.
+    if(window.SWRV_PRELOAD_STATUS && !window.SWRV_PRELOAD_STATUS.complete){
+      html.push('<div class="search-indexing-note">Indexing full Bible… '+(window.SWRV_PRELOAD_STATUS.loaded||0)+'/'+(window.SWRV_PRELOAD_STATUS.total||0)+' books loaded. Results will refresh automatically.</div>');
+    }
+
     // === Result groups ===
     for(const cat of ordered){
       if(activeCategoryFilter && cat !== activeCategoryFilter) continue;
       const list = groups.get(cat);
       if(!list || list.length === 0) continue;
       // Show up to 12 per category when not filtered, 80 when filtered
-      const showCount = activeCategoryFilter ? 80 : 12;
+      const showCount = activeCategoryFilter ? 500 : (cat === 'Scripture Passages' ? 36 : 12);
       const items = list.slice(0, showCount);
       html.push('<div class="search-cat-header">'+items[0].catBadge+' '+_esc(cat)+
                 ' <span class="search-cat-count">'+list.length+'</span></div>');
@@ -746,31 +970,13 @@
     if(!action || !action.type) return;
     closeSearchInner();
     if(action.type === 'verse'){
-      // Navigate using existing app functions
+      // Navigate using the app's source-of-truth navigation so the Book / Chapter / Verse controls update too.
       try {
-        if(typeof loadBook === 'function' && action.book){
+        if(typeof openVerseReference === 'function'){
+          openVerseReference(action.book, action.chapter || 1, action.verse || 1);
+        } else if(typeof loadBook === 'function'){
           loadBook(action.book);
         }
-        setTimeout(() => {
-          if(action.chapter && typeof goToChapter === 'function'){
-            goToChapter(action.chapter);
-          } else if(action.chapter && window.currentChapter !== undefined){
-            window.currentChapter = action.chapter;
-            if(typeof renderChapter === 'function') renderChapter();
-          }
-          if(action.verse){
-            setTimeout(() => {
-              // Scroll to verse
-              const refId = (action.book+'_'+action.chapter+'_'+action.verse).replace(/[^a-z0-9]/gi,'_');
-              const el = document.getElementById(refId);
-              if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
-              // Try alternate ID format used in existing renderVerse
-              const ref2 = (action.book+' '+action.chapter+':'+action.verse).replace(/[^a-z0-9]/gi,'_');
-              const el2 = document.getElementById(ref2);
-              if(el2) el2.scrollIntoView({behavior:'smooth', block:'center'});
-            }, 250);
-          }
-        }, 100);
       } catch(e){ console.error('search nav fail', e); }
     } else if(action.type === 'definition'){
       if(typeof showDef === 'function') showDef(action.key);
@@ -813,6 +1019,10 @@
         const parsed = parseReference(firstRef);
         if(parsed) openResult({type:'verse', book:parsed.book, chapter:parsed.chapter, verse:parsed.verse});
       }
+    } else if(action.type === 'cultural_card'){
+      if(typeof showCulturalCard === 'function') showCulturalCard(action.passage);
+    } else if(action.type === 'instruction_card'){
+      if(typeof showInstruction === 'function') showInstruction(action.passage);
     }
   }
 
@@ -879,6 +1089,20 @@
       runSearchInner();
     }
   }
+
+  // If the user searches before the background Bible preload is finished,
+  // re-run the visible search automatically once all book files are loaded.
+  // This prevents common searches like "Jesus" from appearing to stop around Mark
+  // simply because later New Testament files had not finished indexing yet.
+  window.addEventListener('swrv-bible-preload-complete', function(){
+    SEARCH_INDEX = null;
+    INDEX_BUILD_LOG = null;
+    const drawer = document.getElementById('searchDrawer');
+    const input = document.getElementById('searchInput');
+    if(drawer && drawer.classList.contains('show') && input && input.value.trim()){
+      runSearchInner();
+    }
+  });
 
   // --------------------------- Public API ---------------------------
   window.openSearch = openSearchInner;

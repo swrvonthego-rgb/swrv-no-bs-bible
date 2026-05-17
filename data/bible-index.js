@@ -13,7 +13,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Exo",
     "chapters": 40,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Leviticus",
@@ -21,7 +21,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Lev",
     "chapters": 27,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Numbers",
@@ -29,7 +29,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Num",
     "chapters": 36,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Deuteronomy",
@@ -37,7 +37,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Deu",
     "chapters": 34,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Joshua",
@@ -45,7 +45,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Jos",
     "chapters": 24,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Judges",
@@ -53,7 +53,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Jud",
     "chapters": 21,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Ruth",
@@ -61,7 +61,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Rut",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Samuel",
@@ -69,7 +69,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "1Sa",
     "chapters": 31,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Samuel",
@@ -77,7 +77,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "2Sa",
     "chapters": 24,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Kings",
@@ -85,7 +85,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "1Ki",
     "chapters": 22,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Kings",
@@ -93,7 +93,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "2Ki",
     "chapters": 25,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Chronicles",
@@ -101,7 +101,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "1Ch",
     "chapters": 29,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Chronicles",
@@ -109,7 +109,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "2Ch",
     "chapters": 36,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Ezra",
@@ -117,7 +117,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Ezr",
     "chapters": 10,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Nehemiah",
@@ -125,7 +125,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Neh",
     "chapters": 13,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Esther",
@@ -133,7 +133,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Est",
     "chapters": 10,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Job",
@@ -141,7 +141,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Job",
     "chapters": 42,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Psalms",
@@ -149,7 +149,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Psa",
     "chapters": 150,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Proverbs",
@@ -157,7 +157,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Pro",
     "chapters": 31,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Ecclesiastes",
@@ -165,7 +165,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Ecc",
     "chapters": 12,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "SongofSolomon",
@@ -173,7 +173,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Sng",
     "chapters": 8,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Isaiah",
@@ -181,7 +181,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Isa",
     "chapters": 66,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Jeremiah",
@@ -189,7 +189,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Jer",
     "chapters": 52,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Lamentations",
@@ -197,7 +197,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Lam",
     "chapters": 5,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Ezekiel",
@@ -205,7 +205,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Eze",
     "chapters": 48,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Daniel",
@@ -213,7 +213,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Dan",
     "chapters": 12,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Hosea",
@@ -221,7 +221,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Hos",
     "chapters": 14,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Joel",
@@ -229,7 +229,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Joe",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Amos",
@@ -237,7 +237,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Amo",
     "chapters": 9,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Obadiah",
@@ -245,7 +245,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Oba",
     "chapters": 1,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Jonah",
@@ -253,7 +253,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Jon",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Micah",
@@ -261,7 +261,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Mic",
     "chapters": 7,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Nahum",
@@ -269,7 +269,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Nah",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Habakkuk",
@@ -277,7 +277,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Hab",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Zephaniah",
@@ -285,7 +285,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Zep",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Haggai",
@@ -293,7 +293,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Hag",
     "chapters": 2,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Zechariah",
@@ -301,7 +301,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Zec",
     "chapters": 14,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Malachi",
@@ -309,7 +309,7 @@ window.BIBLE_INDEX = [
     "testament": "OT",
     "abbrev": "Mal",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Matthew",
@@ -317,7 +317,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Mat",
     "chapters": 28,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Mark",
@@ -325,7 +325,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Mar",
     "chapters": 16,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Luke",
@@ -333,7 +333,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Luk",
     "chapters": 24,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "John",
@@ -341,7 +341,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Jhn",
     "chapters": 21,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Acts",
@@ -349,7 +349,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Act",
     "chapters": 28,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Romans",
@@ -357,7 +357,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Rom",
     "chapters": 16,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Corinthians",
@@ -365,7 +365,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "1Co",
     "chapters": 16,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Corinthians",
@@ -373,7 +373,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "2Co",
     "chapters": 13,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Galatians",
@@ -381,7 +381,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Gal",
     "chapters": 6,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Ephesians",
@@ -389,7 +389,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Eph",
     "chapters": 6,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Philippians",
@@ -397,7 +397,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Phi",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Colossians",
@@ -405,7 +405,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Col",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Thessalonians",
@@ -413,7 +413,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "1Th",
     "chapters": 5,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Thessalonians",
@@ -421,7 +421,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "2Th",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Timothy",
@@ -429,7 +429,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "1Ti",
     "chapters": 6,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Timothy",
@@ -437,7 +437,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "2Ti",
     "chapters": 4,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Titus",
@@ -445,7 +445,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Tit",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Philemon",
@@ -453,7 +453,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Phm",
     "chapters": 1,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Hebrews",
@@ -461,7 +461,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Heb",
     "chapters": 13,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "James",
@@ -469,7 +469,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Jas",
     "chapters": 5,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1Peter",
@@ -477,7 +477,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "1Pe",
     "chapters": 5,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2Peter",
@@ -485,7 +485,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "2Pe",
     "chapters": 3,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "1John",
@@ -493,7 +493,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "1Jo",
     "chapters": 5,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "2John",
@@ -501,7 +501,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "2Jo",
     "chapters": 1,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "3John",
@@ -509,7 +509,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "3Jo",
     "chapters": 1,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Jude",
@@ -517,7 +517,7 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Jud",
     "chapters": 1,
-    "isDeep": false
+    "isDeep": true
   },
   {
     "slug": "Revelation",
@@ -525,6 +525,6 @@ window.BIBLE_INDEX = [
     "testament": "NT",
     "abbrev": "Rev",
     "chapters": 22,
-    "isDeep": false
+    "isDeep": true
   }
 ];

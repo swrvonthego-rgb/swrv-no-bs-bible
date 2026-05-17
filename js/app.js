@@ -157,10 +157,10 @@ function _updateBookContext(){
   if(sBtn){
     sBtn.textContent = '📜 '+book+' Story';
   }
-  // Header button: audit — Genesis only for now (the audit data is Genesis-specific)
+  // Header button: audit — full-library coverage is now global
   const aBtn = document.getElementById('auditBtn');
   if(aBtn){
-    aBtn.style.display = (book==='Genesis') ? '' : 'none';
+    aBtn.style.display = '';
   }
 }
 
@@ -538,6 +538,110 @@ function _getBookInfo(slug){
   if(!window.BIBLE_INDEX)return null;
   return window.BIBLE_INDEX.find(function(b){return b.slug===slug;});
 }
+
+// Every book participates in the deep-study system. Genesis has the richest
+// manual proof build, but every book/chapter/verse now advertises and receives
+// the same universal contextual tooling.
+(function _markAllBooksDeepStudy(){
+  try{
+    if(window.BIBLE_INDEX){
+      window.BIBLE_INDEX.forEach(function(b){ b.isDeep = true; });
+    }
+  }catch(e){}
+})();
+
+// === SWRV DEFINITION BIBLE — supplemental semantic and regular-word layer ===
+// These entries do not replace Strong's/BDB/dictionary sources. They give the
+// app a source-honest bridge for regular English words and high-impact Bible
+// concepts so readers are not left with a thin modern definition.
+window.SWRV_TERM_SUPPLEMENTS = Object.assign({}, window.SWRV_TERM_SUPPLEMENTS || {}, {
+  love:{def:'Biblical love must be read by context, not as one flat emotion. In Greek NT passages, agapē/agapaō usually stresses covenantal, self-giving love; phileō stresses affection, friendship, attachment; eros is not a common NT term but helps readers understand later discussions of desire. Hebrew love language can include covenant loyalty, affection, choice, and action.', greek:'ἀγάπη / ἀγαπάω (G26/G25), φιλέω (G5368), φίλος (G5384)', warning:'Do not assume every English “love” carries the same sense. Ask who is acting, what covenant/relationship is in view, and what the passage demands.'},
+  grace:{def:'Grace is not merely a quick slogan of “unearned favor.” In the NT, charis carries gift, favor, generosity, divine enablement, and covenant kindness that produces a changed life rather than giving people a reason to boast.', greek:'χάρις (G5485)', warning:'Do not separate grace from God’s action, gift, power, and covenant purpose. Grace saves apart from boasting, then trains and empowers faithful living.'},
+  kingdom:{def:'Kingdom means reign, royal authority, domain, government, inheritance, and allegiance. “Kingdom of God” language asks: whose rule is operating here, what territory/people are under that rule, and what loyalty does the King require?', greek:'βασιλεία (G932)', hebrew:'מַלְכוּת / mamlakah family', warning:'Do not reduce kingdom to “heaven after death.” In context it often means God’s active reign confronting rival powers and ordering human life.'},
+  soul:{def:'Soul is not always a detachable ghost inside the body. Hebrew nephesh often means living being, life, appetite, throat, person, self. Greek psychē can mean life, person, inner life, or soul depending on context.', hebrew:'נֶפֶשׁ (nephesh)', greek:'ψυχή (G5590)', warning:'Do not force modern “mind/will/emotions” or Greek philosophical categories onto every use. Context decides.'},
+  spirit:{def:'Spirit can mean breath, wind, animating life, disposition, angelic/spiritual being, or the Holy Spirit depending on context.', hebrew:'רוּחַ (ruach)', greek:'πνεῦμα (G4151)', warning:'Context must decide whether the passage means breath/wind, inner disposition, created spirit, or God’s Spirit.'},
+  flesh:{def:'Flesh can mean physical body, human weakness/mortality, kinship, or fallen human orientation depending on context. Paul often uses “flesh” as a power-pattern opposed to the Spirit, not merely skin or meat.', greek:'σάρξ (G4561)', warning:'Do not read every “flesh” as the physical body being evil. The Bible’s view of the body is more careful than that.'},
+  righteousness:{def:'Righteousness is right-standing and right-order according to God’s covenant standard. It can include personal integrity, justice, vindication, and covenant faithfulness.', greek:'δικαιοσύνη (G1343)', hebrew:'צֶדֶק / צְדָקָה', warning:'Do not reduce righteousness to private morality only. It is personal, relational, legal, and covenantal.'},
+  justice:{def:'Justice is right judgment and covenant order in action: honest courts, protection of the vulnerable, truth, equity, and God’s standard applied publicly.', hebrew:'מִשְׁפָּט (mishpat)', warning:'Do not make justice only modern politics or only private niceness. Biblical justice is God’s order applied to people and society.'},
+  holy:{def:'Holy means set apart to God, distinct, consecrated, and belonging to the realm of divine purpose. It is not merely “nice” or “religious.”', hebrew:'קָדוֹשׁ (qadosh)', greek:'ἅγιος (G40)'},
+  unclean:{def:'Unclean language in Torah often refers to ritual status, boundary, mortality, impurity, and approach to holy space. It is not automatically the same thing as moral evil.', warning:'Do not flatten clean/unclean into “good people vs bad people.”'},
+  covenant:{def:'Covenant is a binding relationship with legal, family, and kingdom force: oath, blood, promise, obligation, loyalty, blessing, curse, and inheritance.', hebrew:'בְּרִית (berit/brit)', warning:'Do not treat covenant as a loose religious promise.'},
+  debauchery:{def:'Debauchery means abandoned excess, loss of moral restraint, sensual self-indulgence, and behavior that throws off sober order. In vice lists, it marks life governed by appetite rather than the Spirit.', greek:'often connected with ἀσέλγεια (G766) / revelry terms depending on verse', warning:'Use the verse’s original word to decide the exact sense.'},
+  drunkenness:{def:'Drunkenness is intoxication that surrenders sober judgment and self-rule. In biblical vice lists it is not just “having a drink”; it is loss of disciplined, Spirit-governed life.', greek:'μέθη (G3178) and related terms'},
+  harlot:{def:'Harlot/prostitute language can refer to sexual commerce, covenant betrayal, idolatry, or national unfaithfulness depending on context.', hebrew:'זֹנָה (zonah)', greek:'πόρνη (G4204)', warning:'Prophets often use this language metaphorically for covenant unfaithfulness.'},
+  works:{def:'Works can mean deeds/actions, Torah observance, works as a basis for boasting, or fruit flowing from faith. Paul and James are not using every “works” phrase the same way.', greek:'ἔργον (G2041)', warning:'Ask whether the passage is talking about earning status before God or living out faithful obedience.'},
+  brother:{def:'Brother can mean biological sibling, covenant kin, fellow Israelite, fellow believer, or neighbor in the faith community depending on context.', greek:'ἀδελφός (G80)', warning:'Instruction about a “brother” often concerns horizontal covenant responsibility toward another person.'}
+});
+window.SWRV_REGULAR_WORDS = Object.assign({}, window.SWRV_REGULAR_WORDS || {}, {
+  debauchery:'Excessive indulgence, especially sensual or drunken behavior, that abandons moral restraint. Check the original Greek/Hebrew word for the exact context.',
+  harlot:'Older English for prostitute; in the prophets it can also describe covenant unfaithfulness or idolatry.',
+  fornication:'Older English sexual-immorality term. In Greek vice lists it often translates porneia: unlawful sexual conduct broadly, not only one modern category.',
+  lasciviousness:'Older English for unrestrained sensuality, shameless conduct, or public moral looseness.',
+  meek:'Strength under discipline, not weakness. Often means a person who does not seize power by violence but trusts God’s order.',
+  blessed:'Favored, empowered, or declared well-positioned before God; not merely “happy.”',
+  repent:'To turn, change mind/orientation, return to God’s way. Hebrew “shuv” stresses return; Greek “metanoeō” stresses transformed mind/direction.',
+  gospel:'Good news/royal announcement. In the Roman world, gospel language could announce imperial victories; the NT announces Jesus as Lord and King.',
+  apostle:'A sent representative/messenger with delegated authority, not merely a religious title.',
+  inheritance:'Family/covenant possession passed by right, promise, or appointment. Often tied to land, kingdom, sonship, and covenant identity.'
+});
+(function _mergeSWRVSupplements(){
+  if(!window.DEFINITIONS) window.DEFINITIONS = {};
+  Object.keys(window.SWRV_TERM_SUPPLEMENTS).forEach(function(k){
+    if(!window.DEFINITIONS[k]) window.DEFINITIONS[k] = window.SWRV_TERM_SUPPLEMENTS[k];
+    else window.DEFINITIONS[k] = Object.assign({}, window.SWRV_TERM_SUPPLEMENTS[k], window.DEFINITIONS[k]);
+  });
+})();
+
+function _getCurrentChapterVerseNums(){
+  const data=_getCurrentBookData();
+  const ch=data&&data[currentChapter];
+  if(!ch||!ch.verses)return [];
+  return Object.keys(ch.verses).map(Number).sort(function(a,b){return a-b;});
+}
+
+function populateVerseSelect(){
+  if(!verseSelect)return;
+  const verseNums=_getCurrentChapterVerseNums();
+  verseSelect.innerHTML='';
+  if(!verseNums.length){
+    const opt=document.createElement('option');
+    opt.value=''; opt.textContent='Verse';
+    verseSelect.appendChild(opt);
+    verseSelect.disabled=true;
+    return;
+  }
+  verseSelect.disabled=false;
+  if(!verseNums.includes(currentVerse)) currentVerse=verseNums[0];
+  for(const vn of verseNums){
+    const opt=document.createElement('option');
+    opt.value=vn;
+    opt.textContent='Verse '+vn;
+    if(vn===currentVerse) opt.selected=true;
+    verseSelect.appendChild(opt);
+  }
+}
+
+function goToVerse(n){
+  if(!n)return;
+  currentVerse=n;
+  localStorage.setItem('swrv_verse',n);
+  if(mode==='verse'){
+    loadChapter(currentChapter);
+    return;
+  }
+  populateVerseSelect();
+  const data=_getCurrentBookData();
+  const ch=data&&data[currentChapter];
+  const v=ch&&ch.verses&&ch.verses[n];
+  if(!v)return;
+  const refId=v.ref.replace(/[^a-z0-9]/gi,'_');
+  const el=document.getElementById(refId);
+  if(el){
+    el.classList.add('verse-highlight');
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(function(){el.classList.remove('verse-highlight');},1800);
+  }
+}
 function _loadBookScript(slug, cb){
   if(_bookScriptLoaded[slug]||(window.BIBLE&&window.BIBLE[slug])){cb();return;}
   const s=document.createElement('script');
@@ -549,6 +653,7 @@ function _loadBookScript(slug, cb){
 
 const chapterSelect=document.getElementById('chapterSelect');
 const bookSelect=document.getElementById('bookSelect');
+const verseSelect=document.getElementById('verseSelect');
 
 
 function goRandomVerse(){
@@ -624,7 +729,7 @@ function populateBookSelect(){
       if(!b) continue;
       const opt = document.createElement('option');
       opt.value = b.slug;
-      opt.textContent = b.display + (b.isDeep?' (deep)':'');
+      opt.textContent = b.display;
       if(b.slug === currentBook) opt.selected = true;
       grp.appendChild(opt);
     }
@@ -642,7 +747,7 @@ function populateBookSelect(){
     }
     const opt=document.createElement('option');
     opt.value=b.slug;
-    opt.textContent=b.display+(b.isDeep?' (deep)':'');
+    opt.textContent=b.display;
     if(b.slug===currentBook)opt.selected=true;
     if(currentGroup)currentGroup.appendChild(opt);
     else bookSelect.appendChild(opt);
@@ -674,6 +779,7 @@ function populateChapterSelect(){
 
 populateBookSelect();
 populateChapterSelect();
+populateVerseSelect();
 
 // Initialize chronological-order button label from saved preference (item 5)
 (function(){
@@ -685,50 +791,215 @@ populateChapterSelect();
 })();
 
 
+function openVerseReference(book, chapter, verse){
+  if(!book) return;
+  _loadBookScript(book,function(){
+    currentBook=book;
+    window.currentBook=book;
+    _updateBookContext();
+    localStorage.setItem('swrv_book',book);
+    if(bookSelect) bookSelect.value=book;
+    populateChapterSelect();
+    currentChapter=parseInt(chapter||1);
+    currentVerse=parseInt(verse||1);
+    localStorage.setItem('swrv_chapter',currentChapter);
+    localStorage.setItem('swrv_verse',currentVerse);
+    populateVerseSelect();
+    _loadChapterCore(currentChapter);
+    setTimeout(function(){
+      if(currentVerse) goToVerse(currentVerse);
+    },80);
+  });
+}
+
 function loadBook(slug){
   if(!slug||slug===currentBook&&_getCurrentBookData())return;
   _loadBookScript(slug,function(){
     currentBook=slug;window.currentBook=slug;_updateBookContext();
     localStorage.setItem('swrv_book',slug);
     currentChapter=1;
+    currentVerse=1;
     localStorage.setItem('swrv_chapter',1);
+    localStorage.setItem('swrv_verse',1);
     populateChapterSelect();
+    populateVerseSelect();
     _loadChapterCore(1);
   });
 }
 function prevChapter(){if(currentChapter>1){loadChapter(currentChapter-1);}else{
   // Jump to previous book's last chapter
   const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;window.currentBook=prev.slug;_updateBookContext();localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;localStorage.setItem('swrv_chapter',prev.chapters);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();_loadChapterCore(prev.chapters);});}
+  if(idx>0){const prev=window.BIBLE_INDEX[idx-1];_loadBookScript(prev.slug,function(){currentBook=prev.slug;window.currentBook=prev.slug;_updateBookContext();localStorage.setItem('swrv_book',prev.slug);currentChapter=prev.chapters;currentVerse=1;localStorage.setItem('swrv_chapter',prev.chapters);localStorage.setItem('swrv_verse',1);if(bookSelect)bookSelect.value=prev.slug;populateChapterSelect();populateVerseSelect();_loadChapterCore(prev.chapters);});}
 }}
 function nextChapter(){
   const info=_getBookInfo(currentBook);
   const max=info?info.chapters:50;
   if(currentChapter<max){loadChapter(currentChapter+1);}else{
     const idx=window.BIBLE_INDEX?window.BIBLE_INDEX.findIndex(function(b){return b.slug===currentBook;}):-1;
-    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;_updateBookContext();localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;localStorage.setItem('swrv_chapter',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();_loadChapterCore(1);});}
+    if(idx>=0&&idx<window.BIBLE_INDEX.length-1){const nxt=window.BIBLE_INDEX[idx+1];_loadBookScript(nxt.slug,function(){currentBook=nxt.slug;window.currentBook=nxt.slug;_updateBookContext();localStorage.setItem('swrv_book',nxt.slug);currentChapter=1;currentVerse=1;localStorage.setItem('swrv_chapter',1);localStorage.setItem('swrv_verse',1);if(bookSelect)bookSelect.value=nxt.slug;populateChapterSelect();populateVerseSelect();_loadChapterCore(1);});}
   }
 }
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
-function renderVerseText(text,definables,peopleNames){
-  const wordSet=new Set(definables);
-  const lowerSet=new Set(definables.map(w=>w.toLowerCase()));
+
+// Stopwords stay untagged so the reader sees helpful definitions, not noise.
+const SWRV_STOP_WORDS = new Set(('a an the and or but if then than to of in on at by for from with without into unto under over as is are was were be been being have has had do does did will would shall should may might can could i you he she it we they them his her their our your my me us this that these those there here not no yes so').split(' '));
+
+function _normalizeWordToken(token){
+  return String(token||'').replace(/[.,;:!?"'`’‘“”\-—()\[\]{}]/g,'').trim();
+}
+
+function _definitionExists(word){
+  if(!word||word.length<3)return false;
+  if(SWRV_STOP_WORDS.has(word.toLowerCase()))return false;
+  return !!(window.DEFINITIONS && (window.DEFINITIONS[word] || window.DEFINITIONS[word.toLowerCase()]));
+}
+
+function getAugmentedDefinables(v, displayText){
+  const out = new Set((v.definableWords||[]).filter(Boolean));
+  const text = String(displayText||'');
+  // Exact word-to-definition saturation from approved in-app dictionary.
+  text.split(/\s+/).forEach(function(tok){
+    const cleaned=_normalizeWordToken(tok);
+    if(_definitionExists(cleaned)){ out.add(cleaned); out.add(cleaned.toLowerCase()); }
+  });
+  // People remain clickable through the people profile layer. Places/themes are shown as chips below the verse.
+  // Phrase-level terms: add source definitions whose phrase occurs in verse text.
+  if(window.DEFINITIONS){
+    const lower=' '+text.toLowerCase()+' ';
+    Object.keys(window.DEFINITIONS).forEach(function(k){
+      if(!k || k.length<4 || !/\s/.test(k) || k.length>42) return;
+      if(lower.indexOf(' '+k.toLowerCase()+' ')>=0) out.add(k);
+    });
+  }
+  return Array.from(out);
+}
+
+const SWRV_CONTEXT_RULES = [
+  {id:'turn_cheek', label:'Honor / shame resistance', re:/turn.*other cheek|cheek|smite|slap/i, applies:function(v){return /Matthew 5:3[89]|Luke 6:29/.test(v.ref)||this.re.test(_verseAllText(v));}, body:'This is not a command to let evil people destroy you. In the honor/shame world, a strike could be a public insult that ranked a person beneath the striker. Jesus teaches kingdom people how to refuse retaliation without surrendering dignity or becoming like the oppressor.', avoid:'Do not reduce this to passivity. Read it inside public shame, power, and witness.', source:'Approved Library synthesis: Gospel text, Roman-era social context, Rule 10/12.'},
+  {id:'prodigal', label:'Family honor and public restoration', re:/prodigal|fatted calf|far country|father.*ran|kissed him/i, applies:function(v){return /^Luke 15:/.test(v.ref)||this.re.test(_verseAllText(v));}, body:'A son who dishonored his father publicly threatened the family name and inheritance order. The father running is not only emotion; it is public protection and restoration before the village can define the son by shame.', avoid:'Do not make it only sentimental. The father absorbs shame to restore the son.', source:'Approved Library synthesis: Luke 15, ANE family/honor patterns.'},
+  {id:'david_overlooked', label:'Lesser son / shepherd status', re:/David|shepherd|ruddy|anoint|Jesse|Samuel/i, applies:function(v){return /^1Samuel 16:/.test(v.ref)||this.re.test(_verseAllText(v));}, body:'In the ancient household, public attention normally fell on the older, stronger, visible sons. David being left with sheep shows how little his family expected him to matter in a royal selection scene.', avoid:'Do not read David as an obvious hero at first glance. The point is God’s sight over social ranking.', source:'Approved Library synthesis: 1 Samuel 16, kingship/family status context.'},
+  {id:'grace_works', label:'Grace, works, and boasting', re:/grace|faith|works|boast|saved|salvation/i, applies:function(v){return /Ephesians 2:8|Ephesians 2:9|Romans 3:2[3-8]|Galatians 2:16|Titus 3:5|James 2:/.test(v.ref)||this.re.test(_verseAllText(v));}, body:'Biblical faith is not “earning salvation.” The New Testament distinguishes grace as God’s gift from works as the basis for boasting. Good works are fruit and witness, not the price paid to purchase rescue.', avoid:'Do not confuse obedience as fruit with works as a claim of merit.', source:'Approved Library synthesis: Pauline and apostolic text pattern.'},
+  {id:'sacrifice_clean', label:'Sacrifice, holiness, and clean/unclean', re:/sacrifice|offering|altar|blood|priest|holy|unclean|clean|heifer|atonement|lamb|goat|bull/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Sacrifice and clean/unclean categories are covenant-order language. They teach approach, boundary, life, death, impurity, and restoration—not modern superstition or mere hygiene.', avoid:'Do not flatten Levitical language into “good people vs. bad people.” It is about access, holiness, and restored order.', source:'Approved Library synthesis: Torah, priesthood, temple, Hebrews.'},
+  {id:'kingdom_rule', label:'Kingdom rule and covenant authority', re:/kingdom|king|throne|rule|dominion|crown|David|Messiah|Christ|son of David/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Kingdom language is government language: authority, rule, territory, loyalty, judgment, protection, and inheritance. The Bible is not written as modern democracy first; it often speaks in royal/covenant categories.', avoid:'Do not read kingdom language as only “going to heaven.” It means God’s reign breaking into real history.', source:'Approved Library synthesis: Kingdom Lens, covenant and kingship sources.'},
+  {id:'covenant_legal', label:'Covenant / legal world', re:/covenant|oath|swear|promise|law|commandment|testimony|witness|curse|blessing|inheritance|firstborn|seed/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Covenant language is legal-family-kingdom language. Blessing, curse, witness, oath, inheritance, and seed all belong to binding relationship and generational responsibility.', avoid:'Do not treat covenant words as loose religious poetry. They carry legal and relational force.', source:'Approved Library synthesis: Torah, prophets, covenants.'},
+  {id:'god_neighbor_instruction', label:'God-facing vs neighbor-facing instruction', re:/brother|neighbor|forgive|ought|reconcile|peace|offence|trespass|command|love|one another|another/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Some biblical commands are God-facing worship/covenant instructions; others are neighbor-facing repair instructions; many are both. When a passage names a brother, neighbor, enemy, poor person, spouse, parent, child, or community member, read it as instruction for how covenant people must handle one another under God’s rule.', avoid:'Do not assume every instruction is only about private standing with God. Many commands expose broken horizontal relationships that must be repaired in real life.', source:'Approved Library synthesis: Torah, prophets, Gospels, apostolic one-another commands.'},
+  {id:'vice_lists', label:'Vice list / practices of the flesh', re:/drunkenness|debauchery|revel|revelling|witchcraft|sorcery|fornication|adultery|uncleanness|lasciviousness|envy|murder|hatred|wrath|strife|sedition|heresies/i, applies:function(v){return /Galatians 5:/.test(v.ref)||this.re.test(_verseAllText(v));}, body:'Vice lists describe practices, patterns, and powers that deform people and communities. They are not throwaway religious insults. Each term needs its own definition because English often hides the Greek range behind one quick word.', avoid:'Do not skim vice lists. Slow down and define the practice, the social damage, and the kingdom contrast.', source:'Approved Library synthesis: Greek lexicon data, Galatians 5, apostolic vice/virtue lists.'},
+  {id:'body_terms', label:'Hebrew anthropology: body, breath, heart', re:/soul|spirit|flesh|heart|mind|breath|life/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Biblical “soul,” “spirit,” “heart,” and “flesh” often function differently than modern English or Greek philosophical categories. The Bible tends to speak of embodied life before God, not a simple body-versus-soul split.', avoid:'Do not force Platonic dualism onto Hebrew/Greek texts.', source:'Approved Library synthesis: Rule 07, Hebrew/Greek word study.'},
+  {id:'justice_right', label:'Justice and righteousness', re:/justice|righteous|righteousness|judgment|judge|poor|widow|orphan|stranger/i, applies:function(v){return this.re.test(_verseAllText(v));}, body:'Justice and righteousness are covenant-order words. They include right judgment, faithfulness, protection of the vulnerable, and society lined up with God’s standard.', avoid:'Do not make these terms only private morality or only politics. The biblical pattern is broader.', source:'Approved Library synthesis: Torah, prophets, wisdom, apostles.'}
+];
+
+function _verseAllText(v){
+  const parts=[v.synthesized||'', v.text||'', v.ref||''];
+  if(v.sources){ Object.keys(v.sources).forEach(function(k){ parts.push((v.sources[k]&&v.sources[k].text)||''); }); }
+  return parts.join(' ');
+}
+
+function getAutoContextCards(v){
+  return SWRV_CONTEXT_RULES.filter(function(rule){
+    try{return rule.applies(v);}catch(e){return false;}
+  }).slice(0,4);
+}
+
+function _getStrongLanguage(v){
+  const t=(v.strongsTags&&v.strongsTags[0]&&v.strongsTags[0].sId)||'';
+  return t.startsWith('G')?'Greek':(t.startsWith('H')?'Hebrew':'Original-language');
+}
+
+function renderUniversalDeepStudy(v){
+  const cards=getAutoContextCards(v);
+  const hasStrong=!!(v.strongsTags&&v.strongsTags.length);
+  const hasDefs=!!(v.definableWords&&v.definableWords.length);
+  const hasRelations=!!((v.peopleInVerse&&v.peopleInVerse.length)||(v.placesInVerse&&v.placesInVerse.length)||(v.themesInVerse&&v.themesInVerse.length));
+  if(!cards.length && !hasStrong && !hasDefs && !hasRelations) return '';
+  let h='<details class="universal-study-card"><summary><span>📚 Study tools</span><small>'+escapeHtml(v.ref)+' · tap to open context, definitions, original words</small></summary>';
+  if(cards.length){
+    h+='<div class="study-card-grid">';
+    cards.forEach(function(c){
+      h+='<div class="study-mini-card cultural-mini"><div class="mini-card-label">🌍 Cultural / Historical Context</div><h4>'+escapeHtml(c.label)+'</h4><p>'+escapeHtml(c.body)+'</p><div class="misunderstand"><b>Modern misunderstanding to avoid:</b> '+escapeHtml(c.avoid)+'</div><div class="source-trace">Source trace: '+escapeHtml(c.source)+'</div></div>';
+    });
+    h+='</div>';
+  }
+  if(hasStrong){
+    h+='<div class="study-mini-card original-mini"><div class="mini-card-label">📔 Original Word Layer</div><p>'+v.strongsTags.length+' '+_getStrongLanguage(v)+' root'+(v.strongsTags.length===1?'':'s')+' are already attached to this verse. Tap the root chips under the verse to open Strong\'s / BDB / lexicon data where available.</p></div>';
+  }
+  if(hasDefs){
+    h+='<div class="study-mini-card definition-mini"><div class="mini-card-label">🔎 Definitions Available</div><p>'+v.definableWords.length+' English term'+(v.definableWords.length===1?'':'s')+' are tagged here. Underlined words open source-connected definition cards.</p></div>';
+  }
+  if(hasRelations){
+    h+='<div class="study-mini-card relation-mini"><div class="mini-card-label">🧭 People / Places / Themes</div><p>This verse is connected to the app’s relationship map so readers can follow names, locations, and repeated biblical themes across the larger story.</p></div>';
+  }
+  h+='</details>';
+  return h;
+}
+
+function renderChapterDeepStudyBanner(ch, verseNums){
+  // The whole app is now a deep-study Bible, so we no longer burn reader
+  // real estate announcing that on every chapter. Deep tools remain available
+  // as collapsible verse/source panels where they actually help the reading.
+  return '';
+}
+
+function _isUsefulDefinitionToken(cleaned){
+  if(!cleaned) return false;
+  const w=cleaned.toLowerCase();
+  if(w.length<4) return false;
+  if(/^(that|this|with|from|unto|into|they|them|their|there|were|have|shall|will|upon|also|then|than|when|what|which|would|could|should|your|ours|hers|does|done|been|being)$/i.test(w)) return false;
+  return true;
+}
+
+function _hasAnyDefinition(cleaned){
+  if(!cleaned) return false;
+  const key=cleaned.toLowerCase();
+  return _definitionExists(cleaned) ||
+    (window.GLOSSARY && (window.GLOSSARY[cleaned]||window.GLOSSARY[key]||window.GLOSSARY[cleaned.toUpperCase()])) ||
+    (window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[key]) ||
+    (window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[key]);
+}
+
+// Per-verse strongsTags lookup. Populated lazily by renderVerse so the click
+// handler can pass the verse-specific tags into showDef for context-sense
+// disambiguation (e.g., "love" in 1 Cor 13 vs John 21 picks different Greek words).
+window.__verseStrongs = window.__verseStrongs || {};
+function renderVerseText(text,definables,peopleNames,verseRef){
+  const wordSet=new Set(definables||[]);
+  const lowerSet=new Set((definables||[]).map(w=>String(w).toLowerCase()));
   const peopleSet=new Set(peopleNames||[]);
+  const refEsc = verseRef ? String(verseRef).replace(/'/g,"\\'") : '';
   return text.split(/(\s+)/).map(token=>{
     if(!token.trim())return token;
-    const cleaned=token.replace(/[.,;:!?'"`'`'—()]/g,'');
+    const cleaned=token.replace(/[.,;:!?\"'`‘’“”—()\[\]]/g,'');
     if(peopleSet.has(cleaned)){
       return '<span class="person-name" onclick="showPerson(\''+cleaned+'\')">'+escapeHtml(token)+'</span>';
     }
-    const isDefinable=wordSet.has(cleaned)||lowerSet.has(cleaned.toLowerCase());
+    const cleanLower=cleaned.toLowerCase();
+    const isDefinable=wordSet.has(cleaned)||lowerSet.has(cleanLower)||(_isUsefulDefinitionToken(cleaned)&&_hasAnyDefinition(cleaned));
     if(isDefinable){
-      const defKey=wordSet.has(cleaned)?cleaned:cleaned.toLowerCase();
-      return '<span class="definable" onclick="showDef(\''+defKey+'\')">'+escapeHtml(token)+'</span>';
+      const defKey=wordSet.has(cleaned)?cleaned:cleanLower;
+      const onclick = refEsc
+        ? "showDef('"+defKey.replace(/'/g,"\\'")+"','"+refEsc+"')"
+        : "showDef('"+defKey.replace(/'/g,"\\'")+"')";
+      return '<span class="definable" onclick="'+onclick+'">'+escapeHtml(token)+'</span>';
     }
     return escapeHtml(token);
   }).join('');
+}
+
+function getAmpStyleNote(v){
+  if(!v || !v.ref) return null;
+  const m=v.ref.match(/^(.+)\s+(\d+):(\d+)$/);
+  if(!m) return null;
+  const book=m[1].replace(/\s+/g,'');
+  const key=m[2]+':'+m[3];
+  const pools=[];
+  if(book==='Genesis' && window.AMP_STYLE) pools.push(window.AMP_STYLE);
+  if(book==='Exodus'){
+    ['EXODUS_AMP_STYLE','EXODUS34_AMP_STYLE','EXODUS57_AMP_STYLE','EXODUS812_AMP_STYLE','EXODUS1315_AMP_STYLE','EXODUS1618_AMP_STYLE','EXODUS1924_AMP_STYLE','EXODUS2540_AMP_STYLE'].forEach(function(n){ if(window[n]) pools.push(window[n]); });
+  }
+  if(book==='Leviticus' && window.LEVITICUS_AMP_STYLE) pools.push(window.LEVITICUS_AMP_STYLE);
+  for(const pool of pools){ if(pool && pool[key]) return pool[key]; }
+  return null;
 }
 
 function renderVerse(v){
@@ -739,7 +1010,9 @@ function renderVerse(v){
   verseHtml.push('<span class="verse-num">'+vNum+'</span>');
   // Support both rich Genesis data (v.synthesized) and plain Bible data (v.text)
   const displayText = v.synthesized || v.text || '';
-  verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,v.definableWords||[],v.peopleInVerse||[])+'</span>');
+  const augmentedDefinables = getAugmentedDefinables(v, displayText);
+  if(v.ref && v.strongsTags) window.__verseStrongs[v.ref] = v.strongsTags;
+  verseHtml.push('<span class="verse-text">'+renderVerseText(displayText,augmentedDefinables,v.peopleInVerse||[],v.ref)+'</span>');
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
@@ -767,6 +1040,12 @@ function renderVerse(v){
       verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
     }
   }
+  // AMP-style expansion cards from the approved project data when available.
+  const ampNote = getAmpStyleNote(v);
+  if(ampNote){
+    verseHtml.push('<details class="amp-nuance-panel"><summary>🟣 Amplified / expansion note <small>'+escapeHtml(v.ref)+'</small></summary><div class="amp-note-text">'+escapeHtml(ampNote.text||'')+'</div>'+(ampNote.audit?'<div class="source-trace">Source trace: '+escapeHtml(ampNote.audit)+'</div>':'')+'</details>');
+  }
+
   // SWRV Strong's-tagged original-language words — every Hebrew/Greek word in the verse
   if(v.strongsTags && v.strongsTags.length){
     const wordsHtml = [];
@@ -774,9 +1053,12 @@ function renderVerse(v){
       // Clean Hebrew word — remove cantillation/maqqef for cleaner display
       const cleanW = (t.w||'').replace(/[\u0591-\u05BD\u05BF-\u05C7]/g,'');
       const isGreek = t.sId && t.sId.startsWith('G');
-      wordsHtml.push('<button class="strongs-word-btn" onclick="showStrongs(\''+t.sId+'\')" title="'+t.sId+' — tap for lexicon entry">'+
-        '<span style="font-size:14px;direction:'+(isGreek?'ltr':'rtl')+';">'+escapeHtml(cleanW||t.sId)+'</span>'+
-        '<span style="font-size:9px;color:var(--fg-dim);margin-left:4px;">'+t.sId+'</span></button>');
+      const lex = isGreek ? (window.STRONGS_GRK && window.STRONGS_GRK[String(t.sId).replace(/^G/, '')]) : (window.STRONGS_HEB && window.STRONGS_HEB[t.sId]);
+      const gloss = lex ? (lex.kjv_def || lex.def || lex.strongs_def || lex.gloss || '') : '';
+      wordsHtml.push('<button class="strongs-word-btn" onclick="showStrongs(\''+t.sId+'\')" title="'+t.sId+' — '+escapeHtml(gloss||'tap for lexicon entry')+'">'+
+        '<span class="root-original" style="direction:'+(isGreek?'ltr':'rtl')+';">'+escapeHtml(cleanW||t.sId)+'</span>'+ 
+        '<span class="root-id">'+t.sId+'</span>'+ 
+        (gloss?'<span class="root-gloss">'+escapeHtml(String(gloss).split(/[;,]/)[0]).slice(0,42)+'</span>':'')+'</button>');
     }
     verseHtml.push('<details class="strongs-roots-panel"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
   }
@@ -830,6 +1112,7 @@ function renderVerse(v){
     }
     verseHtml.push('</div>');
   }
+  verseHtml.push(renderUniversalDeepStudy(v));
   verseHtml.push('</div>');
   // Genesis 1-4 enrichments (Pre-history, plot panels, heartbeat, culture deep)
   if(currentBook==='Genesis'){
@@ -858,8 +1141,14 @@ function loadChapter(n, direction){
 }
 function _loadChapterCore(n){
   const sel=document.getElementById('chapterSelect');if(sel)sel.value=n;
-  currentChapter=n;localStorage.setItem('swrv_chapter',n);
+  currentChapter=n;window.currentChapter=n;window.currentVerse=currentVerse;localStorage.setItem('swrv_chapter',n);
   const bookData=_getCurrentBookData();
+  const tempCh=bookData&&bookData[n];
+  if(tempCh&&tempCh.verses){
+    const nums=Object.keys(tempCh.verses).map(Number).sort(function(a,b){return a-b;});
+    if(!nums.includes(currentVerse)) currentVerse=nums[0]||1;
+  }
+  populateVerseSelect();
   const ch=bookData&&bookData[n];
   if(!ch){
     const main=document.getElementById('mainContent');
@@ -871,6 +1160,7 @@ function _loadChapterCore(n){
   const verseNums=Object.keys(ch.verses).map(Number).sort((a,b)=>a-b);
   if(mode==='chapter'){
     const html=['<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>'];
+    html.push(renderChapterDeepStudyBanner(ch, verseNums));
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
     html.push(renderCompanionPassages(currentBook, currentChapter));
     html.push(renderChronologicalEvents(currentBook, currentChapter));
@@ -891,6 +1181,7 @@ function renderVerseMode(ch,verseNums){
   if(!v){main.innerHTML='<p>Verse not found.</p>';return}
   const html=[];
   html.push('<h1 class="chapter-title">'+escapeHtml(ch.title)+'</h1>');
+  html.push(renderChapterDeepStudyBanner(ch, verseNums));
   html.push('<div class="verse-jump"><select onchange="jumpToVerse(parseInt(this.value))">');
   for(const vn of verseNums){const sel=vn===currentVerse?' selected':'';html.push('<option value="'+vn+'"'+sel+'>Verse '+vn+'</option>')}
   html.push('</select></div>');
@@ -926,7 +1217,7 @@ function prevVerse(){
     if(prevCh){const prevVerseNums=Object.keys(prevCh.verses).map(Number).sort((a,b)=>a-b);currentVerse=prevVerseNums[prevVerseNums.length-1];}
     localStorage.setItem('swrv_chapter',currentChapter);
   }
-  localStorage.setItem('swrv_verse',currentVerse);loadChapter(currentChapter);
+  localStorage.setItem('swrv_verse',currentVerse);populateVerseSelect();loadChapter(currentChapter);
 }
 
 function nextVerse(){
@@ -944,10 +1235,10 @@ function nextVerse(){
     if(nextCh){const nextVerseNums=Object.keys(nextCh.verses).map(Number).sort((a,b)=>a-b);currentVerse=nextVerseNums[0];}
     localStorage.setItem('swrv_chapter',currentChapter);
   }
-  localStorage.setItem('swrv_verse',currentVerse);loadChapter(currentChapter);
+  localStorage.setItem('swrv_verse',currentVerse);populateVerseSelect();loadChapter(currentChapter);
 }
 
-function jumpToVerse(n){currentVerse=n;localStorage.setItem('swrv_verse',n);loadChapter(currentChapter)}
+function jumpToVerse(n){currentVerse=n;localStorage.setItem('swrv_verse',n);populateVerseSelect();loadChapter(currentChapter)}
 
 function toggleSource(btn){
   const src=btn.dataset.src;const ref=btn.dataset.ref;
@@ -961,11 +1252,191 @@ function toggleSource(btn){
 
 function toggleXref(id){const el=document.getElementById(id);if(el)el.classList.toggle('show')}
 
-function showDef(word){
+function _findLexiconMatchesForEnglish(word, limit){
+  const w=String(word||'').toLowerCase();
+  const hits=[];
+  function add(kind,id,e,score){ hits.push({kind:kind,id:id,e:e,score:score}); }
+  if(w.length<3) return hits;
+  if(window.STRONGS_GRK){
+    Object.keys(window.STRONGS_GRK).forEach(function(num){
+      const e=window.STRONGS_GRK[num]; if(!e) return;
+      const blob=((e.def||'')+' '+(e.kjv_def||'')+' '+(e.derivation||'')).toLowerCase();
+      if(blob.indexOf(w)>=0) add('Greek','G'+num,e,(e.kjv_def||'').toLowerCase().split(/,|;|\s+/).includes(w)?90:45);
+    });
+  }
+  if(window.STRONGS_HEB){
+    Object.keys(window.STRONGS_HEB).forEach(function(id){
+      const e=window.STRONGS_HEB[id]; if(!e) return;
+      const blob=((e.strongs_def||e.def||'')+' '+(e.kjv_def||'')+' '+(e.xlit||'')+' '+(e.pron||'')).toLowerCase();
+      if(blob.indexOf(w)>=0) add('Hebrew',id,e,(e.kjv_def||'').toLowerCase().split(/,|;|\s+/).includes(w)?80:35);
+    });
+  }
+  hits.sort(function(a,b){return b.score-a.score;});
+  return hits.slice(0,limit||8);
+}
+
+function showAutoTermCard(word){
   _lockBodyScroll();
+  const popup=document.getElementById('defPopup');
+  popup.classList.remove('people','strongs');
+  const key=String(word||'').trim();
+  const lower=key.toLowerCase();
+  const gloss=(window.GLOSSARY && (window.GLOSSARY[key]||window.GLOSSARY[key.toUpperCase()]||window.GLOSSARY[lower])) || null;
+  const reg=window.SWRV_REGULAR_WORDS && window.SWRV_REGULAR_WORDS[lower];
+  const sup=window.SWRV_TERM_SUPPLEMENTS && window.SWRV_TERM_SUPPLEMENTS[lower];
+  const lex=_findLexiconMatchesForEnglish(lower,8);
+  let html=[];
+  html.push('<div class="def-word">'+escapeHtml(key)+'</div>');
+  if(sup){
+    html.push('<div class="def-section kingdom-section"><div class="def-section-label">Definition Bible / Contextual Meaning</div><div class="def-section-text">'+escapeHtml(sup.def||'')+'</div></div>');
+    if(sup.hebrew) html.push('<div class="def-section"><div class="def-section-label">Hebrew layer</div><div class="def-section-text">'+escapeHtml(sup.hebrew)+'</div></div>');
+    if(sup.greek) html.push('<div class="def-section"><div class="def-section-label">Greek layer</div><div class="def-section-text">'+escapeHtml(sup.greek)+'</div></div>');
+    if(sup.warning) html.push('<div class="def-section warning-section"><div class="def-section-label">Modern misunderstanding to avoid</div><div class="def-section-text">'+escapeHtml(sup.warning)+'</div></div>');
+  }
+  if(reg){ html.push('<div class="def-section"><div class="def-section-label">Regular English / older Bible word</div><div class="def-section-text">'+escapeHtml(reg)+'</div></div>'); }
+  if(gloss){ html.push('<div class="def-section"><div class="def-section-label">Glossary / Study Term</div><div class="def-section-text">'+escapeHtml(gloss.body||gloss.term||'')+'</div></div>'); }
+  if(lex.length){
+    html.push('<div class="def-section strongs-section"><div class="def-section-label">Possible original-language links</div>');
+    lex.forEach(function(hit){
+      const e=hit.e||{};
+      const label=hit.kind==='Greek'?(e.grk||hit.id):(e.lemma||hit.id);
+      const def=e.def||e.strongs_def||e.kjv_def||'';
+      html.push('<button class="lex-link-row" onclick="showStrongs(\''+hit.id+'\')"><b>'+escapeHtml(hit.id)+' '+escapeHtml(label)+'</b><span>'+escapeHtml(def).slice(0,170)+'</span></button>');
+    });
+    html.push('</div>');
+  }
+  if(!sup && !reg && !gloss && !lex.length){
+    html.push('<div class="def-section warning-section"><div class="def-section-label">Definition not sourced yet</div><div class="def-section-text">This word is readable English, but no project source has a dedicated card for it yet. It has been flagged for the next dictionary/source expansion pass instead of pretending.</div></div>');
+  }
+  html.push('<div class="def-section"><div class="def-section-label">Source rule</div><div class="def-section-text">This app may explain and connect sources, but it must not invent doctrine. Use the lexicon/source rows where available and the verse context to decide meaning.</div></div>');
+  document.getElementById('defContent').innerHTML=html.join('');
+  popup.classList.add('show');
+  document.getElementById('defOverlay').classList.add('show');
+}
+
+// Pull the deep English Bible-Word Dictionary entry for a given word, if present.
+// Falls back gracefully when not found. Used by showDef to enrich the popup.
+function _lookupEnglishBibleDict(word){
+  if(!window.ENGLISH_BIBLE_DICT) return null;
+  return window.ENGLISH_BIBLE_DICT[word] || window.ENGLISH_BIBLE_DICT[(word||'').toLowerCase()] || null;
+}
+// Find a context-sense entry matching the verse's strongsTags if any.
+function _contextSenseFor(word, opts){
+  if(!window.CONTEXT_SENSE) return null;
+  const root = window.CONTEXT_SENSE[word] || window.CONTEXT_SENSE[(word||'').toLowerCase()];
+  if(!root) return null;
+  const tags = (opts && opts.strongsTags) || [];
+  for(const t of tags){
+    const sId = (t && t.sId) || t;
+    if(sId && root.byStrongs && root.byStrongs[sId]) return Object.assign({pickedStrongs:sId}, root.byStrongs[sId]);
+  }
+  // Fall back to default if no tag matched
+  if(root.defaultStrongs && root.byStrongs && root.byStrongs[root.defaultStrongs]){
+    return Object.assign({pickedStrongs:root.defaultStrongs, isDefault:true}, root.byStrongs[root.defaultStrongs]);
+  }
+  return null;
+}
+// Render the deep-dictionary HTML block. Caller appends to popup.
+function _renderEnglishDictBlock(deep){
+  const out=[];
+  if(deep.plain) out.push('<div class="def-section"><div class="def-section-label">Quick Meaning</div><div class="def-section-text">'+escapeHtml(deep.plain)+'</div></div>');
+  if(deep.deep) out.push('<div class="def-section"><div class="def-section-label">Deep Meaning (Rule 09)</div><div class="def-section-text">'+escapeHtml(deep.deep)+'</div></div>');
+  if(deep.rangeOfMeaning && deep.rangeOfMeaning.length){
+    out.push('<div class="def-section"><div class="def-section-label">Range of Meaning</div><ul class="def-list">');
+    for(const r of deep.rangeOfMeaning) out.push('<li>'+escapeHtml(r)+'</li>');
+    out.push('</ul></div>');
+  }
+  if(deep.notMean) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Not Meant</div><div class="def-section-text">'+escapeHtml(deep.notMean)+'</div></div>');
+  if(deep.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(deep.misunderstood)+'</div></div>');
+  if(deep.cultural) out.push('<div class="def-section"><div class="def-section-label">Cultural / Historical (Rule 10)</div><div class="def-section-text">'+escapeHtml(deep.cultural)+'</div></div>');
+  if(deep.kingdomSignificance) out.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance (Rule 12)</div><div class="def-section-text">'+escapeHtml(deep.kingdomSignificance)+'</div></div>');
+  if(deep.matters) out.push('<div class="def-section"><div class="def-section-label">Why It Matters</div><div class="def-section-text">'+escapeHtml(deep.matters)+'</div></div>');
+  if(deep.originals && deep.originals.length){
+    out.push('<div class="def-section"><div class="def-section-label">Original Language Words (clickable)</div>');
+    for(const o of deep.originals){
+      const sId=(o.strongs||'').match(/[HG]\d+/)?.[0];
+      const onclick = sId ? ' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"' : '';
+      out.push('<div class="def-section-text" style="margin-top:6px;border-left:2px solid var(--gold);padding-left:8px;"'+onclick+'><b>'+escapeHtml(o.lang||'')+': '+(o.word||'')+'</b>');
+      if(o.translit) out.push(' <i>('+escapeHtml(o.translit)+')</i>');
+      if(o.strongs) out.push(' <span style="color:var(--gold);font-size:11px;">'+escapeHtml(o.strongs)+'</span>');
+      if(o.note) out.push('<br><span style="font-size:13px;">'+escapeHtml(o.note)+'</span>');
+      out.push('</div>');
+    }
+    out.push('</div>');
+  }
+  if(deep.relatedVerses && deep.relatedVerses.length){
+    out.push('<div class="def-section"><div class="def-section-label">Related Verses</div><div class="def-section-text">'+deep.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  }
+  if(deep.relatedWords && deep.relatedWords.length){
+    out.push('<div class="def-section"><div class="def-section-label">Related Words</div><div class="def-section-text">'+deep.relatedWords.map(function(w){return '<span class="definable" onclick="showDef(\''+w.replace(/\'/g,"\\'")+'\')">'+escapeHtml(w)+'</span>';}).join(' · ')+'</div></div>');
+  }
+  if(deep.sources && deep.sources.length){
+    out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+deep.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  }
+  if(deep.confidence){
+    out.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(deep.confidence)+(deep.category?' · <span class="def-section-label">Category:</span> '+escapeHtml(deep.category):'')+'</div>');
+  }
+  return out.join('');
+}
+// Render an instruction-classification card. Caller appends to popup.
+function _renderInstructionBlock(ic){
+  const out=[];
+  if(ic.speaker) out.push('<div class="def-section"><div class="def-section-label">Speaker</div><div class="def-section-text">'+escapeHtml(ic.speaker)+'</div></div>');
+  if(ic.addressed) out.push('<div class="def-section"><div class="def-section-label">Addressed To</div><div class="def-section-text">'+escapeHtml(ic.addressed)+'</div></div>');
+  if(ic.commanded) out.push('<div class="def-section"><div class="def-section-label">Commanded</div><div class="def-section-text">'+escapeHtml(ic.commanded)+'</div></div>');
+  if(ic.category) out.push('<div class="def-section"><div class="def-section-label">Category</div><div class="def-section-text">'+escapeHtml(ic.category)+'</div></div>');
+  if(ic.scope) out.push('<div class="def-section"><div class="def-section-label">Scope</div><div class="def-section-text">'+escapeHtml(ic.scope)+'</div></div>');
+  if(ic.misunderstood) out.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(ic.misunderstood)+'</div></div>');
+  if(ic.text) out.push('<div class="def-section"><div class="def-section-label">Text</div><div class="def-section-text" style="font-style:italic;">'+escapeHtml(ic.text)+'</div></div>');
+  if(ic.sources && ic.sources.length) out.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+ic.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  return out.join('');
+}
+// Show a cultural-context passage card.
+function showCulturalCard(passage){
+  if(!window.CULTURAL_CARDS) return;
+  const c=window.CULTURAL_CARDS[passage]; if(!c) return;
+  const popup=document.getElementById('defPopup'); popup.classList.remove('people','strongs');
+  const html=['<div class="def-word">🌍 '+escapeHtml(c.title||passage)+'</div>'];
+  if(c.passage) html.push('<div class="def-translit">'+escapeHtml(c.passage)+'</div>');
+  if(c.cultural) html.push('<div class="def-section"><div class="def-section-label">Cultural / Historical Setting</div><div class="def-section-text">'+escapeHtml(c.cultural)+'</div></div>');
+  if(c.misunderstood) html.push('<div class="def-section warning-section"><div class="def-section-label">⚠ Modern Misunderstanding</div><div class="def-section-text">'+escapeHtml(c.misunderstood)+'</div></div>');
+  if(c.matters) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Why It Matters</div><div class="def-section-text">'+escapeHtml(c.matters)+'</div></div>');
+  if(c.relatedVerses && c.relatedVerses.length) html.push('<div class="def-section"><div class="def-section-label">Related Verses</div><div class="def-section-text">'+c.relatedVerses.map(escapeHtml).join(' · ')+'</div></div>');
+  if(c.sources && c.sources.length) html.push('<div class="def-section" style="opacity:0.85;"><div class="def-section-label">Source Trace</div><div class="def-section-text" style="font-size:12px;font-style:italic;">'+c.sources.map(escapeHtml).join(' · ')+'</div></div>');
+  if(c.confidence) html.push('<div class="def-section" style="opacity:0.8;font-size:11px;"><span class="def-section-label">Confidence:</span> '+escapeHtml(c.confidence)+'</div>');
+  document.getElementById('defContent').innerHTML=html.join('');
+  popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
+}
+// Show an instruction-classification card.
+function showInstruction(passage){
+  if(!window.INSTRUCTION_CARDS) return;
+  const i=window.INSTRUCTION_CARDS[passage]; if(!i) return;
+  const popup=document.getElementById('defPopup'); popup.classList.remove('people','strongs');
+  const html=['<div class="def-word">📜 '+escapeHtml(i.title||passage)+'</div>'];
+  if(i.passage) html.push('<div class="def-translit">'+escapeHtml(i.passage)+'</div>');
+  html.push(_renderInstructionBlock(i));
+  document.getElementById('defContent').innerHTML=html.join('');
+  popup.classList.add('show'); _lockBodyScroll(); document.getElementById('defOverlay').classList.add('show');
+}
+window.showCulturalCard = showCulturalCard;
+window.showInstruction = showInstruction;
+
+function showDef(word, opts){
+  _lockBodyScroll();
+  // Accept either showDef(word) or showDef(word, opts) or showDef(word, 'Verse 1:2') ref-string.
+  if(typeof opts === 'string'){
+    const ref = opts;
+    const tags = (window.__verseStrongs && window.__verseStrongs[ref]) || [];
+    opts = { ref: ref, strongsTags: tags };
+  }
+  opts = opts || {};
+  const deep = _lookupEnglishBibleDict(word);
   let def=window.DEFINITIONS[word]||window.DEFINITIONS[word.toLowerCase()];
-  if(!def)return;
-  if(def.see&&window.DEFINITIONS[def.see])def=window.DEFINITIONS[def.see];
+  // If neither legacy DEFINITIONS nor the new ENGLISH_BIBLE_DICT has anything, fall back to auto-term card.
+  if(!def && !deep){ showAutoTermCard(word); return; }
+  if(def && def.see && window.DEFINITIONS[def.see])def=window.DEFINITIONS[def.see];
+  // Allow the new deep dictionary to render even when the legacy entry is absent.
+  if(!def) def={};
   const popup=document.getElementById('defPopup');
   popup.classList.remove('people','strongs');
   const html=[];
@@ -1023,6 +1494,24 @@ function showDef(word){
     html.push('</div>');
   }
   if(def.cross)html.push('<div class="def-section"><div class="def-section-label">Cross-References</div><div class="def-section-text">'+escapeHtml(def.cross)+'</div></div>');
+  // ---- Deep English Bible Dictionary block (if available) ----
+  if(deep){
+    // Context-sense disambiguation: if the verse's strongsTags pick a specific
+    // Hebrew/Greek variant of this word, surface it FIRST so the reader sees
+    // which underlying word is operative in this verse.
+    const picked = _contextSenseFor(word, opts);
+    if(picked){
+      const sId=(picked.strongs||'').match(/[HG]\d+/)?.[0] || picked.pickedStrongs;
+      html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Context-Specific Meaning '+(picked.isDefault?'(default — no per-verse tag matched)':'(matched per-verse tag '+(picked.pickedStrongs||'')+')')+'</div>');
+      html.push('<div class="def-section-text"');
+      if(sId) html.push(' onclick="showStrongs(\''+sId+'\')" style="cursor:pointer;"');
+      html.push('><b>'+escapeHtml(picked.lang||'')+': '+(picked.word||'')+'</b>');
+      if(picked.translit) html.push(' <i>('+escapeHtml(picked.translit)+')</i>');
+      if(picked.pickedStrongs) html.push(' <span style="color:var(--gold);font-size:11px;">'+escapeHtml(picked.pickedStrongs)+'</span>');
+      html.push('<br>'+escapeHtml(picked.gloss||'')+'</div></div>');
+    }
+    html.push(_renderEnglishDictBlock(deep));
+  }
   document.getElementById('defContent').innerHTML=html.join('');
   popup.classList.add('show');
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
