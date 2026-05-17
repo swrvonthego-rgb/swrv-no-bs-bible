@@ -799,6 +799,24 @@ function renderVerse(v){
     if(v.enochRef)verseHtml.push('<div class="xref-content" id="'+xrefId+'_enoch"><b>1 Enoch:</b> '+escapeHtml(v.enochRef)+'</div>');
     if(v.josephusRef)verseHtml.push('<div class="xref-content josephus" id="'+xrefId+'_jos"><b>Josephus, Antiquities:</b> '+escapeHtml(v.josephusRef)+'</div>');
   }
+  // SWRV — Places + themes chips (additive, below cross-refs)
+  if((v.placesInVerse&&v.placesInVerse.length)||(v.themesInVerse&&v.themesInVerse.length)){
+    verseHtml.push('<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;">');
+    if(v.placesInVerse&&v.placesInVerse.length){
+      for(const place of v.placesInVerse){
+        const escaped=place.replace(/'/g,"\\'");
+        verseHtml.push('<button class="icon-btn" style="font-size:10px;padding:2px 8px;background:rgba(155,82,53,0.12);border:1px solid #9b5235;color:#9b5235;" onclick="showPlace(\''+escaped+'\')" title="View place card">📍 '+escapeHtml(place)+'</button>');
+      }
+    }
+    if(v.themesInVerse&&v.themesInVerse.length){
+      for(const themeKey of v.themesInVerse){
+        const t=window.THEMES&&window.THEMES[themeKey];
+        if(!t) continue;
+        verseHtml.push('<button class="icon-btn" style="font-size:10px;padding:2px 8px;background:rgba(124,45,18,0.10);border:1px solid var(--line);color:var(--fg-dim);" onclick="showTheme(\''+themeKey+'\')" title="'+escapeHtml(t.description.slice(0,80))+'...">🏷️ '+escapeHtml(t.label)+'</button>');
+      }
+    }
+    verseHtml.push('</div>');
+  }
   verseHtml.push('</div>');
   // Genesis 1-4 enrichments (Pre-history, plot panels, heartbeat, culture deep)
   try{
@@ -841,6 +859,8 @@ function _loadChapterCore(n){
     for(const v of verseNums)html.push(renderVerse(ch.verses[v]));
     html.push(renderCompanionPassages(currentBook, currentChapter));
     html.push(renderChronologicalEvents(currentBook, currentChapter));
+    html.push(renderParallelPassages(currentBook, currentChapter));
+    html.push(renderProphecyLinks(currentBook, currentChapter));
     main.innerHTML=html.join('');
   }else{
     if(!verseNums.includes(currentVerse))currentVerse=verseNums[0]||1;
@@ -868,6 +888,8 @@ function renderVerseMode(ch,verseNums){
   html.push(renderVerse(v));
   html.push(renderCompanionPassages(currentBook, currentChapter));
   html.push(renderChronologicalEvents(currentBook, currentChapter));
+  html.push(renderParallelPassages(currentBook, currentChapter));
+  html.push(renderProphecyLinks(currentBook, currentChapter));
   html.push('<div class="verse-mode-controls" style="margin-top:30px;">');
   html.push('<button class="nav-btn" onclick="prevVerse()" '+(idx===0&&currentChapter===1?'disabled':'')+'>← Prev</button>');
   html.push('<div class="verse-counter"><span class="verse-counter-num">'+currentChapter+':'+currentVerse+'</span></div>');
@@ -1322,6 +1344,135 @@ function renderCompanionPassages(book, chapter){
 }
 
 // SWRV Chronological Events Panel — shows events anchored to this passage
+// SWRV — Place popup (similar to showPerson)
+function showPlace(name){
+  if(!window.PLACES) return;
+  const p = window.PLACES[name];
+  if(!p){ showDef(name); return; }
+  _lockBodyScroll();
+  const popup = document.getElementById('defPopup');
+  popup.classList.remove('strongs');
+  popup.classList.add('people');
+  const html = [];
+  html.push('<div class="def-word">📍 ' + escapeHtml(name) + '</div>');
+  if(p.biblical) html.push('<div class="def-section"><div class="def-section-label">Biblical</div><div class="def-section-text">' + escapeHtml(p.biblical) + '</div></div>');
+  if(p.region) html.push('<div class="def-section"><div class="def-section-label">Region</div><div class="def-section-text">' + escapeHtml(p.region) + '</div></div>');
+  if(p.geography) html.push('<div class="def-section"><div class="def-section-label">Geography</div><div class="def-section-text">' + escapeHtml(p.geography) + '</div></div>');
+  if(p.kingdom) html.push('<div class="def-section kingdom-section"><div class="def-section-label">⚜ Kingdom Significance</div><div class="def-section-text">' + escapeHtml(p.kingdom) + '</div></div>');
+  if(p.sources) html.push('<div class="def-section"><div class="def-section-label">Sources</div><div class="def-section-text">' + escapeHtml(p.sources) + '</div></div>');
+  document.getElementById('defContent').innerHTML = html.join('');
+  popup.classList.add('show');
+  document.getElementById('defOverlay').classList.add('show');
+}
+
+// SWRV — Theme popup
+function showTheme(themeKey){
+  if(!window.THEMES) return;
+  const t = window.THEMES[themeKey];
+  if(!t) return;
+  _lockBodyScroll();
+  const popup = document.getElementById('defPopup');
+  popup.classList.remove('people','strongs');
+  const html = [];
+  html.push('<div class="def-word">🏷️ ' + escapeHtml(t.label) + '</div>');
+  if(t.description) html.push('<div class="def-section"><div class="def-section-label">Description</div><div class="def-section-text">' + escapeHtml(t.description) + '</div></div>');
+  if(t.key_passages && t.key_passages.length){
+    html.push('<div class="def-section"><div class="def-section-label">Key Passages</div><div class="def-section-text">');
+    for(const p of t.key_passages){
+      html.push('<div style="margin:3px 0;">' + escapeHtml(p) + '</div>');
+    }
+    html.push('</div></div>');
+  }
+  document.getElementById('defContent').innerHTML = html.join('');
+  popup.classList.add('show');
+  document.getElementById('defOverlay').classList.add('show');
+}
+
+// SWRV — Parallel passages panel for the current chapter
+function renderParallelPassages(book, chapter){
+  if(!window.PASSAGE_TO_PARALLELS) return '';
+  const keys = [book + ' ' + chapter, book];
+  const groupIds = new Set();
+  for(const k of keys){
+    if(window.PASSAGE_TO_PARALLELS[k]) window.PASSAGE_TO_PARALLELS[k].forEach(id => groupIds.add(id));
+  }
+  // Also match range strings like "Genesis 1-2" containing current chapter
+  for(const passage in window.PASSAGE_TO_PARALLELS){
+    if(passage.startsWith(book + ' ') && passage.includes('-')){
+      const m = passage.match(/^(.+?)\s+(\d+)-(\d+)/);
+      if(m && m[1] === book){
+        const start = parseInt(m[2]), end = parseInt(m[3]);
+        if(chapter >= start && chapter <= end){
+          window.PASSAGE_TO_PARALLELS[passage].forEach(id => groupIds.add(id));
+        }
+      }
+    }
+  }
+  if(groupIds.size === 0) return '';
+
+  let h = '<div class="companion-panel" style="margin-top:18px;padding:14px 16px;background:var(--bg-3);border-left:3px solid #0891B2;border-radius:6px;">';
+  h += '<div style="font-size:11px;color:#0891B2;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🔄 Parallel passages</div>';
+  for(const id of groupIds){
+    const group = window.PARALLEL_PASSAGES.find(p => p.id === id);
+    if(!group) continue;
+    h += '<div class="event-card">';
+    h += '<div class="event-card-title">' + escapeHtml(group.title) + '</div>';
+    if(group.note) h += '<div style="font-size:12px;color:var(--fg-dim);margin-bottom:6px;line-height:1.5;">' + escapeHtml(group.note) + '</div>';
+    h += '<div style="font-size:12px;margin-top:6px;">';
+    for(const p of group.passages){
+      h += '<span style="display:inline-block;margin:2px 4px 2px 0;padding:3px 9px;background:var(--bg-3);border-radius:3px;color:var(--gold);font-weight:600;">' + escapeHtml(p) + '</span>';
+    }
+    h += '</div></div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+// SWRV — Prophecy/fulfillment panel for current chapter
+function renderProphecyLinks(book, chapter){
+  if(!window.PASSAGE_TO_PROPHECIES && !window.PASSAGE_TO_FULFILLMENTS) return '';
+  const chapterKey = book + ' ' + chapter;
+  const matched = new Set();
+  // Match exact key + range strings + verse-specific patterns
+  const checkMap = (map, asProphecy) => {
+    for(const passage in map){
+      // Exact chapter match
+      if(passage === chapterKey || passage.startsWith(chapterKey + ':')){
+        map[passage].forEach(id => matched.add(JSON.stringify({id, asProphecy})));
+      }
+      // Range
+      const rm = passage.match(/^(.+?)\s+(\d+)-(\d+)$/);
+      if(rm && rm[1] === book){
+        const s = parseInt(rm[2]), e = parseInt(rm[3]);
+        if(chapter >= s && chapter <= e){
+          map[passage].forEach(id => matched.add(JSON.stringify({id, asProphecy})));
+        }
+      }
+    }
+  };
+  checkMap(window.PASSAGE_TO_PROPHECIES || {}, true);
+  checkMap(window.PASSAGE_TO_FULFILLMENTS || {}, false);
+
+  if(matched.size === 0) return '';
+  let h = '<div class="companion-panel" style="margin-top:18px;padding:14px 16px;background:var(--bg-3);border-left:3px solid #7E22CE;border-radius:6px;">';
+  h += '<div style="font-size:11px;color:#7E22CE;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">⚡ Prophecy and fulfillment</div>';
+  for(const entry of matched){
+    const obj = JSON.parse(entry);
+    const link = window.PROPHECY_FULFILLMENT.find(p => p.id === obj.id);
+    if(!link) continue;
+    h += '<div class="event-card">';
+    h += '<div class="event-card-title">' + escapeHtml(link.topic) + '</div>';
+    h += '<div style="font-size:12px;margin:6px 0;">';
+    h += '<div style="margin:3px 0;"><span style="color:#B8860B;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Prophecy:</span> <strong style="color:var(--gold);">' + escapeHtml(link.prophecy) + '</strong></div>';
+    h += '<div style="margin:3px 0;"><span style="color:#059669;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Fulfillment:</span> <strong style="color:var(--gold);">' + escapeHtml(link.fulfillment) + '</strong></div>';
+    h += '</div>';
+    if(link.note) h += '<div style="font-size:12px;color:var(--fg-dim);line-height:1.5;margin-top:4px;">' + escapeHtml(link.note) + '</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
 function renderChronologicalEvents(book, chapter){
   if(!window.PASSAGE_TO_EVENTS) return '';
   // Two lookup keys: "Book Chapter" and just "Book" — events can anchor at chapter level
@@ -2532,6 +2683,10 @@ function showModal(type){
     }
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+csmCount+'</div><div class="audit-stat-label">Cross-source links</div></div>';
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.CHRONOLOGICAL_EVENTS||[]).length+'</div><div class="audit-stat-label">Chronological events</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.PARALLEL_PASSAGES||[]).length+'</div><div class="audit-stat-label">Parallel passage groups</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.PROPHECY_FULFILLMENT||[]).length+'</div><div class="audit-stat-label">Prophecy/fulfillment pairs</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+Object.keys(window.PLACES||{}).length+'</div><div class="audit-stat-label">Places database</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+Object.keys(window.THEMES||{}).length+'</div><div class="audit-stat-label">Biblical themes</div></div>';
     auditHtml += '</div>';
 
     // === SECTION 2: Source category breakdown ===
