@@ -1679,7 +1679,29 @@ function showPerson(name){
   if(!p && name === 'Joseph') p = window.PEOPLES['Joseph_NT'];
   // Fall back to DEFINITIONS for biblical-figure terms stored there (e.g. Adam, Eve, Noah, Cain, Abel, Enoch)
   if(!p && window.DEFINITIONS && window.DEFINITIONS[name]){ showDef(name); return; }
-  if(!p)return;
+  if(!p){
+    // Graceful "source data not yet curated" card — runs when a name is
+    // detected/tappable but no curated PEOPLES/PERSON_CONTEXT/DEFINITIONS
+    // entry exists yet (e.g. Goliath, Caesar, Esther). Better than a silent
+    // tap. Source-honest per audit rule — does not invent appearance/details.
+    const popup=document.getElementById('defPopup');
+    if(!popup) return;
+    popup.classList.remove('strongs');
+    popup.classList.add('people');
+    const displayName=name.replace(/_NT$/, '');
+    const html=[];
+    html.push('<div class="def-word">👤 '+escapeHtml(displayName)+'</div>');
+    html.push('<div class="def-section warning-section">');
+    html.push('<div class="def-section-label">Source data limited</div>');
+    html.push('<div class="def-section-text">No curated profile for '+escapeHtml(displayName)+' is in the approved project sources yet. Tap 🔎 Search to find Scripture passages that mention this figure. Source data will be added in a later content pass.</div>');
+    html.push('</div>');
+    document.getElementById('defContent').innerHTML=html.join('');
+    popup.classList.add('show');
+    _lockBodyScroll();
+    const ov=document.getElementById('defOverlay');
+    if(ov) ov.classList.add('show');
+    return;
+  }
   // Display name (strip _NT suffix for cleaner UI)
   const displayName = name.replace(/_NT$/, '');
   const popup=document.getElementById('defPopup');

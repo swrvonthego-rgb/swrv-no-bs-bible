@@ -5,22 +5,22 @@
 // on an old build. The 65 per-book Bible files cache lazily on first fetch
 // (preloader pulls them at idle) — keeps install fast while still going fully
 // offline within ~10 seconds of first load.
-const CACHE_NAME = 'swrv-kingdom-bible-v20260517-culturepass1';
+const CACHE_NAME = 'swrv-kingdom-bible-v20260517-peoplefallback1';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
-  './js/app.js?v=20260517collapsepass1',
-  './js/search.js?v=20260517collapsepass1',
-  './js/preload-bible.js?v=20260517collapsepass1',
-  './data/english-bible-dictionary.js?v=20260517collapsepass1',
-  './data/context-sense-disambiguator.js?v=20260517collapsepass1',
-  './data/cultural-context-cards.js?v=20260517collapsepass1',
-  './data/instruction-classification.js?v=20260517collapsepass1',
-  './data/person-context-cards.js?v=20260517collapsepass1',
-  './data/group-nation-cards.js?v=20260517collapsepass1',
-  './data/religion-context-cards.js?v=20260517collapsepass1',
+  './js/app.js?v=20260517peoplefallback1',
+  './js/search.js?v=20260517peoplefallback1',
+  './js/preload-bible.js?v=20260517peoplefallback1',
+  './data/english-bible-dictionary.js?v=20260517peoplefallback1',
+  './data/context-sense-disambiguator.js?v=20260517peoplefallback1',
+  './data/cultural-context-cards.js?v=20260517peoplefallback1',
+  './data/instruction-classification.js?v=20260517peoplefallback1',
+  './data/person-context-cards.js?v=20260517peoplefallback1',
+  './data/group-nation-cards.js?v=20260517peoplefallback1',
+  './data/religion-context-cards.js?v=20260517peoplefallback1',
   './assets/cover.png',
   './assets/icons/icon-180.png',
   './assets/icons/icon-192.png',
