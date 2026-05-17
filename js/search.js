@@ -276,6 +276,119 @@
         log.strongs_heb++;
       }
     }
+
+    // === 6b. Places ===
+    log.places = 0;
+    if(window.PLACES){
+      for(const key in window.PLACES){
+        const p = window.PLACES[key];
+        if(!p) continue;
+        const bits = [key, p.biblical, p.region, p.notable, p.appearance,
+                       (p.modern||''), (p.passages||[]).join(' ')].filter(Boolean).join(' ');
+        idx.push({
+          type:'place',
+          category:'Places',
+          catShort:'place',
+          catBadge:'🗺️',
+          title: key,
+          searchText: bits.toLowerCase(),
+          preview: (p.biblical || p.notable || p.region || '').slice(0,180),
+          reference: p.region || (p.passages && p.passages[0]) || '',
+          priority: 72,
+          action: { type:'place', key }
+        });
+        log.places++;
+      }
+    }
+
+    // === 6c. Themes ===
+    log.themes = 0;
+    if(window.THEMES){
+      for(const key in window.THEMES){
+        const t = window.THEMES[key];
+        if(!t) continue;
+        const bits = [key, t.label, t.description,
+                       (t.key_passages||[]).join(' '),
+                       (t.related_themes||[]).join(' ')].filter(Boolean).join(' ');
+        idx.push({
+          type:'theme',
+          category:'Themes',
+          catShort:'theme',
+          catBadge:'🔗',
+          title: t.label || key,
+          searchText: bits.toLowerCase(),
+          preview: (t.description || '').slice(0,200),
+          reference: t.key_passages ? (t.key_passages[0]||'') : '',
+          priority: 72,
+          action: { type:'theme', key }
+        });
+        log.themes++;
+      }
+    }
+
+    // === 6d. Parallel passages (Companion Sources) ===
+    log.parallels = 0;
+    if(window.PARALLEL_PASSAGES){
+      for(const p of window.PARALLEL_PASSAGES){
+        const bits = [p.title, p.note, (p.passages||[]).join(' ')].filter(Boolean).join(' ');
+        idx.push({
+          type:'parallel',
+          category:'Companion Sources',
+          catShort:'parallel',
+          catBadge:'🔁',
+          title: p.title,
+          searchText: bits.toLowerCase(),
+          preview: p.note || (p.passages||[]).join(', '),
+          reference: (p.passages||[]).join(' / '),
+          priority: 62,
+          action: { type:'parallel', id:p.id }
+        });
+        log.parallels++;
+      }
+    }
+
+    // === 6e. Prophecy/Fulfillment (Companion Sources) ===
+    log.prophecies = 0;
+    if(window.PROPHECY_FULFILLMENT){
+      for(const p of window.PROPHECY_FULFILLMENT){
+        const bits = [p.topic, p.note, p.prophecy, p.fulfillment, p.theme].filter(Boolean).join(' ');
+        idx.push({
+          type:'prophecy',
+          category:'Companion Sources',
+          catShort:'prophecy',
+          catBadge:'✨',
+          title: 'Prophecy: ' + (p.topic || p.id),
+          searchText: bits.toLowerCase(),
+          preview: (p.note || (p.prophecy + ' → ' + p.fulfillment)).slice(0,200),
+          reference: p.prophecy + ' → ' + p.fulfillment,
+          priority: 62,
+          action: { type:'prophecy', id:p.id }
+        });
+        log.prophecies++;
+      }
+    }
+
+    // === 6f. Translation-Loss Notes (from definitions with .warning) ===
+    log.translation_loss = 0;
+    if(window.DEFINITIONS){
+      for(const key in window.DEFINITIONS){
+        const d = window.DEFINITIONS[key];
+        if(!d || typeof d !== 'object' || !d.warning) continue;
+        idx.push({
+          type:'translation_loss',
+          category:'Translation Loss Notes',
+          catShort:'translation',
+          catBadge:'⚠️',
+          title: 'Translation loss: ' + key,
+          searchText: (key + ' ' + d.warning + ' ' + (d.def||'')).toLowerCase(),
+          preview: d.warning.slice(0, 220),
+          reference: d.hebrew || d.greek || d.strongs || '',
+          priority: 72,
+          action: { type:'definition', key }
+        });
+        log.translation_loss++;
+      }
+    }
     if(window.STRONGS_GRK){
       for(const num in window.STRONGS_GRK){
         const e = window.STRONGS_GRK[num];
@@ -430,12 +543,18 @@
     const phraseEscaped = escapeRegex(phrase);
     const phraseRe = new RegExp('\\b'+phraseEscaped+'\\b','i');
 
+    // Current chapter for context boost (per spec: boost current-chapter results)
+    const curBook = window.currentBook;
+    const curChapter = window.currentChapter;
+
     for(const rec of index){
       let score = 0;
+      let matchedIn = null;
       const txt = rec.searchText;
       // Exact phrase match — biggest boost
       if(txt.indexOf(phrase) !== -1){
         score += rec.priority * 10;
+        matchedIn = 'phrase';
         // Boost if it's a word boundary match
         if(phraseRe.test(txt)) score += 200;
       }
@@ -444,15 +563,28 @@
       for(const tok of tokens){
         if(txt.indexOf(tok) !== -1) tokenHits++;
       }
-      if(tokenHits === tokens.length && tokens.length>0) score += rec.priority * 4;
-      else if(tokenHits > 0) score += rec.priority * tokenHits;
+      if(tokenHits === tokens.length && tokens.length>0){
+        score += rec.priority * 4;
+        if(!matchedIn) matchedIn = 'all tokens';
+      } else if(tokenHits > 0){
+        score += rec.priority * tokenHits;
+        if(!matchedIn) matchedIn = 'partial';
+      }
 
       // Title hits — significant boost
       const titleLower = (rec.title||'').toLowerCase();
-      if(titleLower === phrase) score += rec.priority * 30;
-      else if(titleLower.indexOf(phrase) !== -1) score += rec.priority * 15;
+      if(titleLower === phrase){ score += rec.priority * 30; matchedIn = 'exact title'; }
+      else if(titleLower.indexOf(phrase) !== -1){ score += rec.priority * 15; matchedIn = matchedIn || 'title'; }
 
-      if(score > 0) scored.push({rec, score});
+      // Current-chapter boost — per spec, boost (don't filter) when user is inside a chapter
+      if(curBook && curChapter && rec.action){
+        if(rec.action.type === 'verse' && rec.action.book === curBook && rec.action.chapter === curChapter){
+          score += 500;  // significant boost but doesn't override exact phrase matches
+          matchedIn = (matchedIn||'context') + ' • this chapter';
+        }
+      }
+
+      if(score > 0) scored.push({rec, score, matchedIn});
     }
 
     scored.sort((a,b) => b.score - a.score);
@@ -467,6 +599,7 @@
         title: r.title,
         preview: r.preview,
         reference: r.reference,
+        matchedIn: s.matchedIn,
         score: s.score,
         action: r.action
       });
@@ -502,13 +635,20 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  // Currently active category filter (null = all)
+  let activeCategoryFilter = null;
+  // Last search outcome — kept so filter clicks can re-render without re-searching
+  let lastSearchOutcome = null;
+
   function renderResults(searchOutcome){
     const out = document.getElementById('searchResults');
     const help = document.getElementById('searchHelp');
+    lastSearchOutcome = searchOutcome;
     if(!searchOutcome){
       out.innerHTML = '';
       out.style.display = 'none';
       help.style.display = '';
+      activeCategoryFilter = null;
       return;
     }
     help.style.display = 'none';
@@ -534,31 +674,58 @@
 
     // Category display order
     const orderHint = ['Scripture Passages','Hebrew Words','Greek Words','Dictionary / Glossary',
-                       'People','Chronological Events','Cultural Context','Companion Sources','Enoch','Josephus'];
+                       'Translation Loss Notes','People','Places','Themes',
+                       'Chronological Events','Cultural Context','Companion Sources','Enoch','Josephus'];
     const ordered = [];
     for(const c of orderHint){ if(groups.has(c)) ordered.push(c); }
     for(const c of groups.keys()){ if(!ordered.includes(c)) ordered.push(c); }
 
     const html = [];
+
+    // === Category filter chips (per spec) — only show if 2+ categories ===
+    if(ordered.length >= 2){
+      html.push('<div class="search-filter-bar">');
+      html.push('<button class="search-filter-chip'+(!activeCategoryFilter?' active':'')+'" onclick="searchFilterCategory(null)">All <span class="search-filter-count">'+total+'</span></button>');
+      for(const cat of ordered){
+        const isActive = activeCategoryFilter === cat;
+        const badge = groups.get(cat)[0].catBadge || '';
+        html.push('<button class="search-filter-chip'+(isActive?' active':'')+'" onclick="searchFilterCategory('+JSON.stringify(cat).replace(/"/g,'&quot;')+')">'+badge+' '+_esc(cat)+' <span class="search-filter-count">'+groups.get(cat).length+'</span></button>');
+      }
+      html.push('</div>');
+    }
+
+    // === Result groups ===
     for(const cat of ordered){
+      if(activeCategoryFilter && cat !== activeCategoryFilter) continue;
       const list = groups.get(cat);
       if(!list || list.length === 0) continue;
-      // Show up to 10 per category by default; user can scroll
-      const items = list.slice(0,12);
+      // Show up to 12 per category when not filtered, 80 when filtered
+      const showCount = activeCategoryFilter ? 80 : 12;
+      const items = list.slice(0, showCount);
       html.push('<div class="search-cat-header">'+items[0].catBadge+' '+_esc(cat)+
                 ' <span class="search-cat-count">'+list.length+'</span></div>');
       for(const r of items){
         html.push('<button class="search-result" onclick="searchOpen('+JSON.stringify(r.action).replace(/"/g,'&quot;')+')">');
         html.push('<div class="search-result-top">');
         html.push('<div class="search-result-title">'+highlight(r.title, query)+'</div>');
-        html.push('<div class="search-result-cat-badge">'+_esc(r.catShort||cat.slice(0,8))+'</div>');
+        const matchLabel = r.matchedIn ? ' • '+r.matchedIn : '';
+        html.push('<div class="search-result-cat-badge">'+_esc(r.catShort||cat.slice(0,8))+matchLabel+'</div>');
         html.push('</div>');
         if(r.preview) html.push('<div class="search-result-preview">'+highlight(r.preview, query)+'</div>');
         if(r.reference && r.reference !== r.title) html.push('<div class="search-result-meta">'+_esc(r.reference)+'</div>');
         html.push('</button>');
       }
+      // "Show all N in this category" link if truncated
+      if(!activeCategoryFilter && list.length > showCount){
+        html.push('<button class="search-show-more" onclick="searchFilterCategory('+JSON.stringify(cat).replace(/"/g,'&quot;')+')">Show all '+list.length+' results in '+_esc(cat)+' →</button>');
+      }
     }
     out.innerHTML = html.join('');
+  }
+
+  function filterCategoryInner(cat){
+    activeCategoryFilter = cat;
+    if(lastSearchOutcome) renderResults(lastSearchOutcome);
   }
 
   function renderRecentSearches(){
@@ -611,6 +778,33 @@
       if(typeof showPerson === 'function') showPerson(action.key);
     } else if(action.type === 'strongs'){
       if(typeof showStrongs === 'function') showStrongs(action.id);
+    } else if(action.type === 'place'){
+      // Use showPlace if defined, else best-effort modal
+      if(typeof showPlace === 'function'){ showPlace(action.key); }
+      else {
+        const p = (window.PLACES||{})[action.key];
+        if(p) alert(action.key + '\n\n' + (p.biblical||p.region||''));
+      }
+    } else if(action.type === 'theme'){
+      if(typeof showTheme === 'function'){ showTheme(action.key); }
+      else {
+        const t = (window.THEMES||{})[action.key];
+        if(t) alert((t.label||action.key) + '\n\n' + (t.description||''));
+      }
+    } else if(action.type === 'parallel'){
+      // Open the first passage of the parallel group
+      const p = (window.PARALLEL_PASSAGES||[]).find(x => x.id === action.id);
+      if(p && p.passages && p.passages.length){
+        const ref = parseReference(p.passages[0]);
+        if(ref) openResult({type:'verse', book:ref.book, chapter:ref.chapter, verse:ref.verse});
+      }
+    } else if(action.type === 'prophecy'){
+      // Open the prophecy passage
+      const p = (window.PROPHECY_FULFILLMENT||[]).find(x => x.id === action.id);
+      if(p && p.prophecy){
+        const ref = parseReference(p.prophecy);
+        if(ref) openResult({type:'verse', book:ref.book, chapter:ref.chapter, verse:ref.verse});
+      }
     } else if(action.type === 'event'){
       // No dedicated event modal — find a passage to jump to
       const ev = (window.CHRONOLOGICAL_EVENTS||[]).find(e=>e.id===action.id);
@@ -693,6 +887,7 @@
   window.handleSearchKeydown = handleSearchKeydownInner;
   window.setSearchAndRun = setSearchAndRunInner;
   window.searchOpen = openResult;
+  window.searchFilterCategory = filterCategoryInner;
   window.parseSearchReference = parseReference;
   window.buildSearchIndex = buildIndex;
   window.runSearchQuery = runSearchQuery;
