@@ -183,6 +183,12 @@ header.app-header{background:linear-gradient(180deg,var(--bg-2),var(--bg));borde
 .audit-stat-label{color:var(--fg-dim);font-size:11px;text-transform:uppercase;letter-spacing:0.4px;margin-top:2px}
 .audit-stat-check{color:#059669;font-size:14px;margin-right:6px}
 .audit-stat-warn{color:#D97706}
+.strongs-word-btn{display:inline-flex;align-items:center;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:3px 9px;cursor:pointer;font-family:inherit;color:var(--fg);transition:all 0.15s}
+.strongs-word-btn:hover{background:var(--gold);color:#0e0a06;border-color:var(--gold)}
+.strongs-roots-panel{margin-top:8px}
+.strongs-roots-panel summary{outline:none;list-style:none}
+.strongs-roots-panel summary::-webkit-details-marker{display:none}
+.strongs-roots-panel summary:hover{opacity:0.8}
 .source-tab:hover{color:var(--gold)}
 .source-tab.active{color:#0e0a06;background:var(--gold);border-color:var(--gold)}
 .source-tab.amp.active{color:#fff;background:var(--violet);border-color:var(--violet)}

@@ -767,6 +767,19 @@ function renderVerse(v){
       verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
     }
   }
+  // SWRV Strong's-tagged original-language words — every Hebrew/Greek word in the verse
+  if(v.strongsTags && v.strongsTags.length){
+    const wordsHtml = [];
+    for(const t of v.strongsTags){
+      // Clean Hebrew word — remove cantillation/maqqef for cleaner display
+      const cleanW = (t.w||'').replace(/[\u0591-\u05BD\u05BF-\u05C7]/g,'');
+      const isGreek = t.sId && t.sId.startsWith('G');
+      wordsHtml.push('<button class="strongs-word-btn" onclick="showStrongs(\''+t.sId+'\')" title="'+t.sId+' — tap for lexicon entry">'+
+        '<span style="font-size:14px;direction:'+(isGreek?'ltr':'rtl')+';">'+escapeHtml(cleanW||t.sId)+'</span>'+
+        '<span style="font-size:9px;color:var(--fg-dim);margin-left:4px;">'+t.sId+'</span></button>');
+    }
+    verseHtml.push('<details class="strongs-roots-panel"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
+  }
   if(v.kingdomLens){
     verseHtml.push('<div class="kingdom-lens">');
     verseHtml.push('<div class="kingdom-lens-label">⚜ KINGDOM LENS</div>');
@@ -2649,6 +2662,7 @@ function showModal(type){
     // Count things live
     let totalVerses = 0, withBSB = 0, withKJV = 0, withClickable = 0, withPeople = 0, withKL = 0;
     let totalClickables = 0, totalPeople = 0;
+    let withStrongsTags = 0, totalStrongsTags = 0;
     const allBooks = [];
     if(window.GENESIS) allBooks.push(window.GENESIS);
     if(window.BIBLE) for(const slug in window.BIBLE) allBooks.push(window.BIBLE[slug]);
@@ -2662,6 +2676,7 @@ function showModal(type){
           if(v.definableWords && v.definableWords.length){ withClickable++; totalClickables += v.definableWords.length; }
           if(v.peopleInVerse && v.peopleInVerse.length){ withPeople++; totalPeople += v.peopleInVerse.length; }
           if(v.kingdomLens) withKL++;
+          if(v.strongsTags && v.strongsTags.length){ withStrongsTags++; totalStrongsTags += v.strongsTags.length; }
         }
       }
     }
@@ -2683,6 +2698,8 @@ function showModal(type){
     }
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+csmCount+'</div><div class="audit-stat-label">Cross-source links</div></div>';
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.CHRONOLOGICAL_EVENTS||[]).length+'</div><div class="audit-stat-label">Chronological events</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+withStrongsTags.toLocaleString()+'</div><div class="audit-stat-label">Verses with Strong\'s tags ('+pct(withStrongsTags)+')</div></div>';
+    auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+totalStrongsTags.toLocaleString()+'</div><div class="audit-stat-label">Word→Strong\'s links</div></div>';
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.PARALLEL_PASSAGES||[]).length+'</div><div class="audit-stat-label">Parallel passage groups</div></div>';
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+(window.PROPHECY_FULFILLMENT||[]).length+'</div><div class="audit-stat-label">Prophecy/fulfillment pairs</div></div>';
     auditHtml += '<div class="audit-stat"><div class="audit-stat-num"><span class="audit-stat-check">✓</span>'+Object.keys(window.PLACES||{}).length+'</div><div class="audit-stat-label">Places database</div></div>';
