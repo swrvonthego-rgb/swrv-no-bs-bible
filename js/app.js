@@ -625,6 +625,7 @@ function goToVerse(n){
   if(!n)return;
   currentVerse=n;
   localStorage.setItem('swrv_verse',n);
+  if(typeof updateMobileNavSummary==='function') updateMobileNavSummary();
   if(mode==='verse'){
     loadChapter(currentChapter);
     return;
@@ -654,6 +655,55 @@ function _loadBookScript(slug, cb){
 const chapterSelect=document.getElementById('chapterSelect');
 const bookSelect=document.getElementById('bookSelect');
 const verseSelect=document.getElementById('verseSelect');
+
+
+// === SWRV mobile reading controls ===
+// Mobile needs maximum reading space. Keep Book/Chapter/Verse controls available,
+// but collapse them into a one-line summary by default on phones. Desktop is
+// unaffected — the .mobile-nav-toggle button is display:none above 680px.
+function updateMobileNavSummary(){
+  const summary=document.getElementById('mobileNavSummary');
+  if(!summary)return;
+  const info=(typeof _getBookInfo==='function')?_getBookInfo(currentBook):null;
+  const bookName=(info&&info.display)||currentBook||'Genesis';
+  const ch=currentChapter||1;
+  const v=currentVerse||1;
+  let chapterTitle='';
+  const data=(typeof _getCurrentBookData==='function')?_getCurrentBookData():null;
+  if(data&&data[ch]&&data[ch].title){
+    chapterTitle=String(data[ch].title).replace(new RegExp('^'+bookName+'\\s+'+ch+'\\s*[—-]?\\s*','i'),'');
+  }
+  const shortTitle=chapterTitle ? ' — '+chapterTitle.replace(/^Ch\s*\d+\s*[—-]?\s*/i,'').slice(0,34) : '';
+  summary.textContent=bookName+' '+ch+':'+v+shortTitle;
+}
+function setMobileNavCollapsed(collapsed){
+  const bar=document.getElementById('studyNavBar');
+  const btn=document.getElementById('mobileNavToggle');
+  if(!bar||!btn)return;
+  bar.classList.toggle('mobile-collapsed',!!collapsed);
+  btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  const cue=btn.querySelector('.mobile-nav-cue');
+  if(cue) cue.textContent = collapsed ? 'Controls ▾' : 'Hide ▴';
+  try{localStorage.setItem('swrv_mobile_nav_collapsed', collapsed?'1':'0');}catch(e){}
+  updateMobileNavSummary();
+}
+function toggleMobileNav(){
+  const bar=document.getElementById('studyNavBar');
+  if(!bar)return;
+  setMobileNavCollapsed(!bar.classList.contains('mobile-collapsed'));
+}
+function initMobileNavState(){
+  if(!window.matchMedia || !window.matchMedia('(max-width: 680px)').matches){
+    updateMobileNavSummary();
+    return;
+  }
+  let saved=null;
+  try{saved=localStorage.getItem('swrv_mobile_nav_collapsed');}catch(e){}
+  setMobileNavCollapsed(saved===null ? true : saved==='1');
+}
+window.updateMobileNavSummary=updateMobileNavSummary;
+window.toggleMobileNav=toggleMobileNav;
+window.setMobileNavCollapsed=setMobileNavCollapsed;
 
 
 function goRandomVerse(){
@@ -1149,6 +1199,7 @@ function _loadChapterCore(n){
     if(!nums.includes(currentVerse)) currentVerse=nums[0]||1;
   }
   populateVerseSelect();
+  if(typeof updateMobileNavSummary==='function') updateMobileNavSummary();
   const ch=bookData&&bookData[n];
   if(!ch){
     const main=document.getElementById('mainContent');
@@ -3336,6 +3387,9 @@ if(mode==='verse'){
 }
 
 loadChapter(currentChapter);
+// Initialize mobile nav state: on phone widths, collapse the Book/Chapter/Verse
+// controls into a one-line summary; on desktop, this is a no-op.
+if(typeof initMobileNavState==='function') initMobileNavState();
 
 
 // ============================================================

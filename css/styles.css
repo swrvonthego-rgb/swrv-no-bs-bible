@@ -1549,3 +1549,129 @@ body{
   font-size:13px;
   line-height:1.4;
 }
+
+
+/* === SWRV mobile audit pass: compact reading controls === */
+.mobile-nav-toggle{display:none}
+@media (max-width: 680px){
+  .sticky-nav{top:0}
+  .app-header{
+    padding:8px 10px 6px;
+  }
+  .logo{width:42px;height:42px;font-size:16px;flex:0 0 42px}
+  .header-actions{
+    gap:7px;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:0 2px 4px;
+  }
+  .header-actions::-webkit-scrollbar{display:none}
+  .icon-btn,
+  .mode-toggle button{
+    min-height:40px;
+    padding:8px 12px;
+    font-size:14px;
+    border-radius:12px;
+  }
+  .mode-toggle button{min-width:72px}
+
+  .study-nav-bar{
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    padding:7px 10px 8px;
+    align-items:end;
+    transition:max-height .22s ease, padding .22s ease;
+  }
+  .mobile-nav-toggle{
+    display:flex;
+    grid-column:1 / -1;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    min-height:42px;
+    padding:8px 10px;
+    border:1px solid rgba(212,175,55,.45);
+    border-radius:12px;
+    background:linear-gradient(180deg,rgba(212,175,55,.12),rgba(0,0,0,.08)),var(--bg-2);
+    color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-weight:850;
+    text-align:left;
+  }
+  #mobileNavSummary{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    max-width:68%;
+    color:var(--gold-bright);
+  }
+  .mobile-nav-cue{
+    color:var(--fg-dim);
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .nav-field label{
+    font-size:10px;
+    letter-spacing:1.5px;
+    padding-left:2px;
+  }
+  .ch-select{
+    min-height:39px;
+    padding:7px 9px;
+    border-radius:10px;
+    font-size:13px;
+    line-height:1.2;
+  }
+  .nav-field-book{grid-column:1 / 2!important}
+  .reading-order-btn{
+    grid-column:2 / 3!important;
+    min-height:39px!important;
+    align-self:end;
+    font-size:12px!important;
+    padding:7px 8px!important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .nav-field-chapter{grid-column:1 / 2!important}
+  .nav-field-verse{grid-column:2 / 3!important}
+  .nav-arrows{
+    grid-column:1 / -1!important;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .nav-arrows .ch-nav-btn{
+    min-height:40px;
+    min-width:0;
+    font-size:19px;
+  }
+
+  .study-nav-bar.mobile-collapsed{
+    display:block;
+    padding:6px 10px;
+  }
+  .study-nav-bar.mobile-collapsed .nav-field,
+  .study-nav-bar.mobile-collapsed .reading-order-btn,
+  .study-nav-bar.mobile-collapsed .nav-arrows{
+    display:none!important;
+  }
+  .study-nav-bar.mobile-collapsed .mobile-nav-toggle{
+    margin:0;
+  }
+
+  .main{padding:12px 15px 92px!important}
+  .chapter-title{font-size:26px!important;line-height:1.12;margin:12px 0 14px!important}
+  .verse{padding:12px 0 20px!important;margin-bottom:22px!important;scroll-margin-top:86px!important}
+  .verse-num{font-size:17px;min-width:24px;margin-right:8px}
+  .verse-text{font-size:19px!important;line-height:1.72!important}
+  .verse-mode-controls{padding:9px!important;gap:8px!important;margin-bottom:14px!important}
+  .verse-counter-num{font-size:16px!important}
+  .verse-counter-meta{font-size:9px!important}
+  .sources{gap:5px;margin-top:8px!important}
+  .source-tab{font-size:11px;padding:5px 9px}
+  .universal-study-card{margin-top:8px!important}
+  .universal-study-card:not([open]) summary{padding:8px 10px!important}
+  .strongs-roots-panel{margin-left:0!important}
+}

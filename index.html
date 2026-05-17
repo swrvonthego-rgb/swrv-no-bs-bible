@@ -63,7 +63,11 @@
     <button class="icon-btn" onclick="cycleTheme()">🎨</button>
   </div>
 </header>
-<div class="ch-picker-bar study-nav-bar" aria-label="Bible navigation controls">
+<div class="ch-picker-bar study-nav-bar" id="studyNavBar" aria-label="Bible navigation controls">
+  <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false">
+    <span id="mobileNavSummary">Genesis 1:1</span>
+    <span class="mobile-nav-cue">Controls ▾</span>
+  </button>
   <div class="nav-field nav-field-book">
     <label for="bookSelect">Book</label>
     <select id="bookSelect" class="ch-select" onchange="loadBook(this.value)"></select>
@@ -239,14 +243,14 @@
 <script src="data/strongs-greek.js"></script>
 <script src="data/bible-index.js"></script>
 <!-- ============ Deep Definition Bible Engine — new layers ============ -->
-<script src="data/english-bible-dictionary.js?v=20260517culturepass1"></script>
-<script src="data/context-sense-disambiguator.js?v=20260517culturepass1"></script>
-<script src="data/cultural-context-cards.js?v=20260517culturepass1"></script>
-<script src="data/instruction-classification.js?v=20260517culturepass1"></script>
+<script src="data/english-bible-dictionary.js?v=20260517mobilepass1"></script>
+<script src="data/context-sense-disambiguator.js?v=20260517mobilepass1"></script>
+<script src="data/cultural-context-cards.js?v=20260517mobilepass1"></script>
+<script src="data/instruction-classification.js?v=20260517mobilepass1"></script>
 <!-- ============ Cultural / People / Nations / Religion context layers ============ -->
-<script src="data/person-context-cards.js?v=20260517culturepass1"></script>
-<script src="data/group-nation-cards.js?v=20260517culturepass1"></script>
-<script src="data/religion-context-cards.js?v=20260517culturepass1"></script>
+<script src="data/person-context-cards.js?v=20260517mobilepass1"></script>
+<script src="data/group-nation-cards.js?v=20260517mobilepass1"></script>
+<script src="data/religion-context-cards.js?v=20260517mobilepass1"></script>
 
 <!-- ============ GENESIS 1-4 DEEP BUILD v8 DATA ============ -->
 <script src="data/pre-history.js"></script>
@@ -313,11 +317,11 @@
 <script src="js/enrichments.js"></script>
 
 <!-- ============ APP — main logic, calls loadChapter() at end ============ -->
-<script src="js/app.js?v=20260517culturepass1"></script>
-<script src="js/search.js?v=20260517culturepass1"></script>
+<script src="js/app.js?v=20260517mobilepass1"></script>
+<script src="js/search.js?v=20260517mobilepass1"></script>
 <!-- Background-load every canonical book at idle so global search isn't
      limited to whatever chapter the user has navigated to. -->
-<script src="js/preload-bible.js?v=20260517culturepass1" defer></script>
+<script src="js/preload-bible.js?v=20260517mobilepass1" defer></script>
 
 
 <script>
