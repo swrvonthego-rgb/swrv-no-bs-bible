@@ -1012,10 +1012,65 @@ function _hasAnyDefinition(cleaned){
 // handler can pass the verse-specific tags into showDef for context-sense
 // disambiguation (e.g., "love" in 1 Cor 13 vs John 21 picks different Greek words).
 window.__verseStrongs = window.__verseStrongs || {};
+
+// === SWRV Person / Appearance Context Utilities ===
+// Purpose: when a biblical figure is mentioned, the reader can tap the name
+// and immediately see tribe/family/geography/appearance/culture/religion context.
+// Source-honest: where the exact appearance is not directly stated, the card uses
+// "regional context suggests / source data limited" language instead of guessing.
+function _normNameKey(s){
+  return String(s||'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function _escapeRegex(s){
+  return String(s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+}
+function _getKnownPersonKeys(){
+  const keys = new Set();
+  if(window.PEOPLES){
+    Object.keys(window.PEOPLES).forEach(function(k){
+      if(k && k.length>1) keys.add(k);
+      const p=window.PEOPLES[k];
+      if(p && p.altName){
+        String(p.altName).split(/[,;\/·]/).map(x=>x.trim()).filter(Boolean).forEach(x=>{ if(x.length>1) keys.add(x); });
+      }
+    });
+  }
+  if(window.PERSON_CONTEXT){
+    Object.keys(window.PERSON_CONTEXT).forEach(function(k){ if(k && k.length>1) keys.add(k); });
+  }
+  // Core names that often appear before a richer PEOPLES card was manually tagged.
+  ['Adam','Eve','Cain','Abel','Seth','Enoch','Noah','Abraham','Abram','Sarah','Sarai','Hagar','Ishmael','Isaac','Rebekah','Jacob','Israel','Esau','Joseph','Judah','Moses','Aaron','Miriam','Joshua','Rahab','Ruth','Boaz','Samuel','Saul','David','Solomon','Elijah','Elisha','Isaiah','Jeremiah','Ezekiel','Daniel','Nebuchadnezzar','Esther','Mordecai','Mary','Joseph','John','Jesus','Peter','Paul','Stephen','Matthew','Mark','Luke','Caesar','Herod','Pharaoh','Goliath'].forEach(k=>keys.add(k));
+  return Array.from(keys).sort(function(a,b){return b.length-a.length;});
+}
+function detectPeopleInText(text, already){
+  const found = new Set(already||[]);
+  const t = ' '+String(text||'')+' ';
+  _getKnownPersonKeys().forEach(function(name){
+    // avoid tiny ambiguous tokens unless they were explicitly known already
+    if(String(name).length<3) return;
+    const re = new RegExp('(^|[^A-Za-z])'+_escapeRegex(name)+'([^A-Za-z]|$)','i');
+    if(re.test(t)) found.add(name);
+  });
+  return Array.from(found).slice(0,8);
+}
+function _hasPersonContext(name){
+  return !!((window.PEOPLES && (window.PEOPLES[name] || window.PEOPLES[name+'_NT'])) || (window.PERSON_CONTEXT && (window.PERSON_CONTEXT[name] || window.PERSON_CONTEXT[name.replace(/_NT$/,'')])));
+}
+function renderPersonContextStrip(v, text){
+  const people = detectPeopleInText(text, v.peopleInVerse||[]).filter(_hasPersonContext);
+  if(!people.length) return '';
+  const chips = people.map(function(name){
+    const safe = String(name).replace(/'/g,"\\'");
+    return '<button class="context-chip person-context-chip" onclick="showPerson(\''+safe+'\')" title="Open appearance, tribe, family, culture, belief, and source context">👤 '+escapeHtml(_normNameKey(name).replace(/ NT$/,''))+'</button>';
+  }).join('');
+  return '<details class="verse-context-strip person-context-strip"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Appearance notes are source-honest: exact features are only stated where the library supports them; otherwise the card uses responsible regional/geographic context.</div></details>';
+}
+
 function renderVerseText(text,definables,peopleNames,verseRef){
   const wordSet=new Set(definables||[]);
   const lowerSet=new Set((definables||[]).map(w=>String(w).toLowerCase()));
-  const peopleSet=new Set(peopleNames||[]);
+  const detectedPeople = detectPeopleInText(text, peopleNames||[]);
+  const peopleSet=new Set(detectedPeople);
   const refEsc = verseRef ? String(verseRef).replace(/'/g,"\\'") : '';
   return text.split(/(\s+)/).map(token=>{
     if(!token.trim())return token;
@@ -1090,6 +1145,9 @@ function renderVerse(v){
       verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
     }
   }
+  // Compact people/appearance/culture context chips — collapsed by default to protect reading flow.
+  verseHtml.push(renderPersonContextStrip(v, displayText));
+
   // AMP-style expansion cards from the approved project data when available.
   const ampNote = getAmpStyleNote(v);
   if(ampNote){
@@ -1633,6 +1691,7 @@ function showPerson(name){
   if(p.biblical)html.push('<div class="def-section"><div class="def-section-label">Biblical Identity</div><div class="def-section-text">'+escapeHtml(p.biblical)+'</div></div>');
   if(p.region)html.push('<div class="def-section"><div class="def-section-label">Region / Origin (Rule 10)</div><div class="def-section-text">'+escapeHtml(p.region)+'</div></div>');
   if(p.appearance)html.push('<div class="def-section"><div class="def-section-label">Appearance — ANE Eyes (Rule 12)</div><div class="def-section-text">'+escapeHtml(p.appearance)+'</div></div>');
+  else html.push('<div class="def-section warning-section"><div class="def-section-label">Appearance / Region Guardrail</div><div class="def-section-text">Exact skin, hair, and eye details are not directly preserved for every person. This app does not default ancient biblical people into European movie imagery. Use region, ancestry, tribe, climate, era, and source evidence when available; when source data is limited, the honest answer is marked as limited rather than invented.</div></div>');
   if(p.diet)html.push('<div class="def-section"><div class="def-section-label">Diet & Daily Life</div><div class="def-section-text">'+escapeHtml(p.diet)+'</div></div>');
   if(p.notable)html.push('<div class="def-section"><div class="def-section-label">Notable</div><div class="def-section-text">'+escapeHtml(p.notable)+'</div></div>');
   if(p.sources)html.push('<div class="def-section"><div class="def-section-label">Sources (Rule 13)</div><div class="def-section-text"><i>'+escapeHtml(p.sources)+'</i></div></div>');
@@ -1657,6 +1716,24 @@ function showPerson(name){
   popup.classList.add('show');
   _lockBodyScroll();document.getElementById('defOverlay').classList.add('show');
 }
+
+
+function auditPeopleContextCoverage(){
+  const known = _getKnownPersonKeys();
+  const withProfiles = known.filter(_hasPersonContext);
+  const report = {
+    knownNames: known.length,
+    namesWithPeopleOrContextProfiles: withProfiles.length,
+    peoplesProfiles: window.PEOPLES ? Object.keys(window.PEOPLES).length : 0,
+    personContextProfiles: window.PERSON_CONTEXT ? Object.keys(window.PERSON_CONTEXT).length : 0,
+    groupNationCards: window.GROUP_NATIONS ? Object.keys(window.GROUP_NATIONS).length : 0,
+    religionCards: window.RELIGION_CARDS ? Object.keys(window.RELIGION_CARDS).length : 0,
+    note: 'People/appearance cards use source-honest confidence language. Missing exact appearance data is shown as a source gap, not guessed.'
+  };
+  console.table(report);
+  return report;
+}
+window.auditPeopleContextCoverage = auditPeopleContextCoverage;
 
 function lookupBDB(id){
   // Smart lookup: try exact match first, then try a/b/c disambiguated senses

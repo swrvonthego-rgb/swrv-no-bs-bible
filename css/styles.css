@@ -1725,3 +1725,217 @@ body{
 .collapsible-section.heartbeat-callout{border-left:3px solid #c0392b}
 .collapsible-section.culture-box-deep{border-left:3px solid #2980b9}
 .collapsible-section.amp-text{border-left:3px solid var(--strongs)}
+
+
+/* ============================================================
+   SWRV MOBILE READING FLOW + PEOPLE CONTEXT AUDIT FIX
+   Goal: keep deep context available without creating a wall between verses.
+   ============================================================ */
+
+.verse-context-strip{
+  margin:8px 0 0 48px;
+  border:1px dashed rgba(139,111,42,.45);
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+  overflow:hidden;
+}
+.verse-context-strip > summary{
+  list-style:none;
+  cursor:pointer;
+  padding:8px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--gold);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:12px;
+  font-weight:850;
+}
+.verse-context-strip > summary::-webkit-details-marker{display:none}
+.verse-context-strip > summary::after{
+  content:"▾";
+  color:var(--fg-dim);
+  font-size:10px;
+  margin-left:6px;
+}
+.verse-context-strip[open] > summary::after{transform:rotate(180deg)}
+.verse-context-strip small{color:var(--fg-dim);font-weight:650;font-size:10px;}
+.context-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:0 10px 10px;
+}
+.context-chip{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--bg-3);
+  color:var(--fg);
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:750;
+  cursor:pointer;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+.context-chip:hover{background:var(--gold);color:#0e0a06;border-color:var(--gold)}
+.compact-source-trace{
+  margin:0 10px 10px;
+  font-size:10px;
+  line-height:1.35;
+}
+
+/* Make collapsed study/source panels thin so notes do not create huge gaps between verses. */
+.amp-nuance-panel,
+.universal-study-card,
+.collapsible-section,
+.strongs-roots-panel,
+.verse-context-strip{
+  max-width:calc(100% - 48px);
+}
+.amp-nuance-panel:not([open]) summary,
+.universal-study-card:not([open]) summary,
+.collapsible-section:not([open]) > summary,
+.strongs-roots-panel:not([open]) summary,
+.verse-context-strip:not([open]) > summary{
+  min-height:0;
+}
+
+/* Dense reading mode for phone screens. Context is still present, but skinny. */
+@media(max-width:680px){
+  .verse{
+    margin-bottom:20px;
+    padding:10px 0 14px;
+  }
+  .verse-text{
+    font-size:24px;
+    line-height:1.62;
+  }
+  .verse-num{
+    font-size:20px;
+    min-width:28px;
+    margin-right:8px;
+  }
+  .sources{
+    margin-left:0;
+    gap:5px;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    padding-bottom:2px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .source-tab{
+    flex:0 0 auto;
+    padding:5px 9px;
+    font-size:11px;
+    border-radius:999px;
+  }
+  .source-content,
+  .numbering-note,
+  .kingdom-lens,
+  .cultural-panel,
+  .translation-flag,
+  .amp-nuance-panel,
+  .universal-study-card,
+  .verse-context-strip{
+    margin-left:0 !important;
+    max-width:100% !important;
+  }
+  .amp-nuance-panel{
+    margin-top:7px;
+    border-radius:11px;
+  }
+  .amp-nuance-panel summary{
+    padding:7px 10px;
+    font-size:12px;
+    line-height:1.2;
+  }
+  .amp-nuance-panel summary small{
+    font-size:10px;
+  }
+  .strongs-roots-panel summary{
+    font-size:10.5px !important;
+    padding:5px 0 !important;
+    line-height:1.25;
+  }
+  .strongs-roots-words{
+    max-height:150px;
+    overflow:auto;
+  }
+  .collapsible-section{
+    margin-top:6px;
+    border-radius:10px;
+  }
+  .collapsible-section > summary{
+    padding:7px 10px;
+    font-size:10.5px;
+    letter-spacing:.02em;
+    line-height:1.25;
+  }
+  .collapsible-section .collapsible-cue{
+    max-width:58vw;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .universal-study-card{
+    margin-top:7px;
+    border-radius:12px;
+  }
+  .universal-study-card summary{
+    padding:8px 10px;
+    line-height:1.25;
+  }
+  .universal-study-card summary span{
+    font-size:14px;
+  }
+  .universal-study-card summary small{
+    font-size:10px;
+    max-width:48vw;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .study-card-grid{
+    grid-template-columns:1fr;
+    gap:7px;
+    padding:0 8px 8px;
+  }
+  .study-mini-card{
+    margin:0 8px 8px;
+    padding:9px 10px;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .study-mini-card h4{
+    font-size:13px;
+    margin:3px 0 5px;
+  }
+  .verse-context-strip{
+    margin-top:6px;
+  }
+  .verse-context-strip > summary{
+    padding:7px 10px;
+    font-size:11px;
+    line-height:1.25;
+  }
+  .context-chip-row{
+    gap:5px;
+    padding:0 8px 8px;
+  }
+  .context-chip{
+    font-size:10.5px;
+    padding:4px 8px;
+  }
+  .compact-source-trace{
+    font-size:9.5px;
+    margin:0 8px 8px;
+  }
+  /* Keep the music player from covering too much scripture on narrow screens. */
+  .music-mini{
+    transform:scale(.86);
+    transform-origin:bottom right;
+    right:8px;
+    bottom:10px;
+  }
+}
