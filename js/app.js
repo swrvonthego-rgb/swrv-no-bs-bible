@@ -705,6 +705,42 @@ window.updateMobileNavSummary=updateMobileNavSummary;
 window.toggleMobileNav=toggleMobileNav;
 window.setMobileNavCollapsed=setMobileNavCollapsed;
 
+// === SWRV Reader Focus / Study Layers ===
+// The study Bible has a lot of context. This toggle lets readers choose an
+// uninterrupted Scripture flow or the full inline study-layer experience.
+function _defaultStudyLayerMode(){
+  try{
+    const saved=localStorage.getItem('swrv_study_layers');
+    if(saved==='read' || saved==='study') return saved;
+  }catch(e){}
+  // On phones, default to Read so notes don't crowd the screen. Desktop gets Study.
+  const mobile = window.matchMedia && window.matchMedia('(max-width: 680px)').matches;
+  return mobile ? 'read' : 'study';
+}
+window._studyLayerMode = _defaultStudyLayerMode();
+function applyStudyLayerMode(modeName){
+  window._studyLayerMode = (modeName === 'study') ? 'study' : 'read';
+  try{localStorage.setItem('swrv_study_layers', window._studyLayerMode);}catch(e){}
+  document.body.classList.toggle('reader-focus', window._studyLayerMode === 'read');
+  document.body.classList.toggle('study-focus', window._studyLayerMode === 'study');
+  const btn=document.getElementById('studyLayerToggle');
+  if(btn){
+    if(window._studyLayerMode === 'read'){
+      btn.textContent='📖 Read';
+      btn.title='Reading mode: study boxes are hidden. Tap to show inline study layers.';
+      btn.setAttribute('aria-pressed','false');
+    }else{
+      btn.textContent='🧠 Study';
+      btn.title='Study mode: inline notes and source boxes are visible. Tap for clean reading.';
+      btn.setAttribute('aria-pressed','true');
+    }
+  }
+}
+function toggleStudyLayers(){
+  applyStudyLayerMode(window._studyLayerMode === 'read' ? 'study' : 'read');
+}
+window.applyStudyLayerMode=applyStudyLayerMode;
+window.toggleStudyLayers=toggleStudyLayers;
 
 function goRandomVerse(){
   if(!window.BIBLE_INDEX)return;
@@ -963,7 +999,7 @@ function renderUniversalDeepStudy(v){
   const hasDefs=!!(v.definableWords&&v.definableWords.length);
   const hasRelations=!!((v.peopleInVerse&&v.peopleInVerse.length)||(v.placesInVerse&&v.placesInVerse.length)||(v.themesInVerse&&v.themesInVerse.length));
   if(!cards.length && !hasStrong && !hasDefs && !hasRelations) return '';
-  let h='<details class="universal-study-card"><summary><span>📚 Study tools</span><small>'+escapeHtml(v.ref)+' · tap to open context, definitions, original words</small></summary>';
+  let h='<details class="universal-study-card study-layer"><summary><span>📚 Study tools</span><small>'+escapeHtml(v.ref)+' · tap to open context, definitions, original words</small></summary>';
   if(cards.length){
     h+='<div class="study-card-grid">';
     cards.forEach(function(c){
@@ -1063,7 +1099,7 @@ function renderPersonContextStrip(v, text){
     const safe = String(name).replace(/'/g,"\\'");
     return '<button class="context-chip person-context-chip" onclick="showPerson(\''+safe+'\')" title="Open appearance, tribe, family, culture, belief, and source context">👤 '+escapeHtml(_normNameKey(name).replace(/ NT$/,''))+'</button>';
   }).join('');
-  return '<details class="verse-context-strip person-context-strip"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Appearance notes are source-honest: exact features are only stated where the library supports them; otherwise the card uses responsible regional/geographic context.</div></details>';
+  return '<details class="verse-context-strip person-context-strip study-layer"><summary>👥 People / appearance context <small>'+people.length+' figure'+(people.length===1?'':'s')+'</small></summary><div class="context-chip-row">'+chips+'</div><div class="source-trace compact-source-trace">Appearance notes are source-honest: exact features are only stated where the library supports them; otherwise the card uses responsible regional/geographic context.</div></details>';
 }
 
 function renderVerseText(text,definables,peopleNames,verseRef){
@@ -1121,7 +1157,7 @@ function renderVerse(v){
   if(v.numberingNote)verseHtml.push('<div class="numbering-note">📖 '+escapeHtml(v.numberingNote)+'</div>');
   const sourceKeys=v.sources?Object.keys(v.sources):[];
   if(sourceKeys.length>0){
-    verseHtml.push('<div class="sources">');
+    verseHtml.push('<div class="sources study-layer">');
     for(const key of sourceKeys){
       const meta=window.SOURCES[key];
       if(!meta)continue;
@@ -1142,7 +1178,7 @@ function renderVerse(v){
       if(key==='AMPLIFIED')cls='amp';
       else if(key==='LXX_GREEK')cls='greek';
       else if(key==='HEBREW')cls='hebrew';
-      verseHtml.push('<div class="source-content '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
+      verseHtml.push('<div class="source-content study-layer '+cls+'" data-src="'+key+'-'+refId+'" style="display:none;">'+escapeHtml(text)+'</div>');
     }
   }
   // Compact people/appearance/culture context chips — collapsed by default to protect reading flow.
@@ -1151,7 +1187,7 @@ function renderVerse(v){
   // AMP-style expansion cards from the approved project data when available.
   const ampNote = getAmpStyleNote(v);
   if(ampNote){
-    verseHtml.push('<details class="amp-nuance-panel"><summary>🟣 Amplified / expansion note <small>'+escapeHtml(v.ref)+'</small></summary><div class="amp-note-text">'+escapeHtml(ampNote.text||'')+'</div>'+(ampNote.audit?'<div class="source-trace">Source trace: '+escapeHtml(ampNote.audit)+'</div>':'')+'</details>');
+    verseHtml.push('<details class="amp-nuance-panel study-layer"><summary>🟣 Amplified / expansion note <small>'+escapeHtml(v.ref)+'</small></summary><div class="amp-note-text">'+escapeHtml(ampNote.text||'')+'</div>'+(ampNote.audit?'<div class="source-trace">Source trace: '+escapeHtml(ampNote.audit)+'</div>':'')+'</details>');
   }
 
   // SWRV Strong's-tagged original-language words — every Hebrew/Greek word in the verse
@@ -1168,16 +1204,16 @@ function renderVerse(v){
         '<span class="root-id">'+t.sId+'</span>'+ 
         (gloss?'<span class="root-gloss">'+escapeHtml(String(gloss).split(/[;,]/)[0]).slice(0,42)+'</span>':'')+'</button>');
     }
-    verseHtml.push('<details class="strongs-roots-panel"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
+    verseHtml.push('<details class="strongs-roots-panel study-layer"><summary style="cursor:pointer;font-size:11px;color:var(--gold);padding:4px 0;font-weight:600;">📔 '+v.strongsTags.length+' '+(v.strongsTags[0].sId.startsWith('G')?'Greek':'Hebrew')+' root'+(v.strongsTags.length===1?'':'s')+' in this verse — tap to study</summary><div class="strongs-roots-words" style="margin-top:6px;padding:8px;background:var(--bg-3);border-radius:6px;display:flex;flex-wrap:wrap;gap:4px;">'+wordsHtml.join('')+'</div></details>');
   }
   if(v.kingdomLens){
-    verseHtml.push('<details class="collapsible-section kingdom-lens">');
+    verseHtml.push('<details class="collapsible-section kingdom-lens study-layer">');
     verseHtml.push('<summary><span class="kingdom-lens-label">⚜ KINGDOM LENS</span></summary>');
     verseHtml.push('<div class="kingdom-lens-text">'+escapeHtml(v.kingdomLens)+'</div>');
     verseHtml.push('</details>');
   }
   if(v.cultural){
-    verseHtml.push('<details class="collapsible-section cultural-panel">');
+    verseHtml.push('<details class="collapsible-section cultural-panel study-layer">');
     verseHtml.push('<summary><span class="cultural-label">🌍 CULTURAL CONTEXT</span> <span class="collapsible-cue">'+escapeHtml(v.cultural.title||'')+'</span></summary>');
     verseHtml.push('<div class="cultural-title">'+escapeHtml(v.cultural.title)+'</div>');
     verseHtml.push('<div class="cultural-detail">'+escapeHtml(v.cultural.detail)+'</div>');
@@ -1186,7 +1222,7 @@ function renderVerse(v){
   }
   if(v.variants&&v.variants.length>0){
     for(const variant of v.variants){
-      verseHtml.push('<details class="collapsible-section translation-flag">');
+      verseHtml.push('<details class="collapsible-section translation-flag study-layer">');
       verseHtml.push('<summary><span class="flag-label">⚠ TRANSLATION LOSS</span> <span class="collapsible-cue">'+escapeHtml(variant.label||'')+'</span></summary>');
       verseHtml.push('<div class="flag-title">'+escapeHtml(variant.label)+'</div>');
       verseHtml.push('<div class="flag-note">'+escapeHtml(variant.note)+'</div>');
@@ -1195,16 +1231,16 @@ function renderVerse(v){
   }
   const xrefId=refId+'_xref';
   if(v.enochRef||v.josephusRef){
-    verseHtml.push('<div class="crossrefs">');
+    verseHtml.push('<div class="crossrefs study-layer">');
     if(v.enochRef)verseHtml.push('<button class="xref-pill" onclick="toggleXref(\''+xrefId+'_enoch\')">📖 1 Enoch</button>');
     if(v.josephusRef)verseHtml.push('<button class="xref-pill josephus" onclick="toggleXref(\''+xrefId+'_jos\')">📜 Josephus</button>');
     verseHtml.push('</div>');
-    if(v.enochRef)verseHtml.push('<div class="xref-content" id="'+xrefId+'_enoch"><b>1 Enoch:</b> '+escapeHtml(v.enochRef)+'</div>');
-    if(v.josephusRef)verseHtml.push('<div class="xref-content josephus" id="'+xrefId+'_jos"><b>Josephus, Antiquities:</b> '+escapeHtml(v.josephusRef)+'</div>');
+    if(v.enochRef)verseHtml.push('<div class="xref-content study-layer" id="'+xrefId+'_enoch"><b>1 Enoch:</b> '+escapeHtml(v.enochRef)+'</div>');
+    if(v.josephusRef)verseHtml.push('<div class="xref-content josephus study-layer" id="'+xrefId+'_jos"><b>Josephus, Antiquities:</b> '+escapeHtml(v.josephusRef)+'</div>');
   }
   // SWRV — Places + themes chips (additive, below cross-refs)
   if((v.placesInVerse&&v.placesInVerse.length)||(v.themesInVerse&&v.themesInVerse.length)){
-    verseHtml.push('<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;">');
+    verseHtml.push('<div class="inline-relation-chips study-layer" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;">');
     if(v.placesInVerse&&v.placesInVerse.length){
       for(const place of v.placesInVerse){
         const escaped=place.replace(/'/g,"\\'");
@@ -1679,29 +1715,7 @@ function showPerson(name){
   if(!p && name === 'Joseph') p = window.PEOPLES['Joseph_NT'];
   // Fall back to DEFINITIONS for biblical-figure terms stored there (e.g. Adam, Eve, Noah, Cain, Abel, Enoch)
   if(!p && window.DEFINITIONS && window.DEFINITIONS[name]){ showDef(name); return; }
-  if(!p){
-    // Graceful "source data not yet curated" card — runs when a name is
-    // detected/tappable but no curated PEOPLES/PERSON_CONTEXT/DEFINITIONS
-    // entry exists yet (e.g. Goliath, Caesar, Esther). Better than a silent
-    // tap. Source-honest per audit rule — does not invent appearance/details.
-    const popup=document.getElementById('defPopup');
-    if(!popup) return;
-    popup.classList.remove('strongs');
-    popup.classList.add('people');
-    const displayName=name.replace(/_NT$/, '');
-    const html=[];
-    html.push('<div class="def-word">👤 '+escapeHtml(displayName)+'</div>');
-    html.push('<div class="def-section warning-section">');
-    html.push('<div class="def-section-label">Source data limited</div>');
-    html.push('<div class="def-section-text">No curated profile for '+escapeHtml(displayName)+' is in the approved project sources yet. Tap 🔎 Search to find Scripture passages that mention this figure. Source data will be added in a later content pass.</div>');
-    html.push('</div>');
-    document.getElementById('defContent').innerHTML=html.join('');
-    popup.classList.add('show');
-    _lockBodyScroll();
-    const ov=document.getElementById('defOverlay');
-    if(ov) ov.classList.add('show');
-    return;
-  }
+  if(!p)return;
   // Display name (strip _NT suffix for cleaner UI)
   const displayName = name.replace(/_NT$/, '');
   const popup=document.getElementById('defPopup');
@@ -3485,6 +3499,7 @@ if(mode==='verse'){
   document.getElementById('modeVerseBtn').classList.add('active');
 }
 
+if(typeof applyStudyLayerMode==='function') applyStudyLayerMode(window._studyLayerMode);
 loadChapter(currentChapter);
 // Initialize mobile nav state: on phone widths, collapse the Book/Chapter/Verse
 // controls into a one-line summary; on desktop, this is a no-op.

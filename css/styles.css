@@ -1939,3 +1939,127 @@ body{
     bottom:10px;
   }
 }
+
+/* ============================================================
+   SWRV READING EXPERIENCE AUDIT FIX
+   Goal: study layers are optional, not a wall between verses.
+   Reader Focus hides all inline notes/sources so Scripture can be read cleanly.
+   Study Mode keeps everything available, but collapsed panels are ultra-thin.
+   ============================================================ */
+.study-layer-toggle{
+  border-color:rgba(212,175,55,.55)!important;
+  background:linear-gradient(180deg,rgba(212,175,55,.16),rgba(0,0,0,.08)),var(--bg-2)!important;
+  color:var(--gold-bright)!important;
+  font-weight:850!important;
+}
+body.reader-focus .study-layer,
+body.reader-focus .sources,
+body.reader-focus .source-content,
+body.reader-focus .inline-relation-chips,
+body.reader-focus .xref-content,
+body.reader-focus .xref-content.josephus{
+  display:none!important;
+}
+body.reader-focus .verse{
+  margin-bottom:18px!important;
+  padding-bottom:18px!important;
+}
+body.reader-focus .verse-text{
+  line-height:1.82!important;
+}
+body.reader-focus .definable,
+body.reader-focus .person-name{
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+body.reader-focus .chapter-title{
+  margin-bottom:10px!important;
+}
+
+/* When Study Mode is on, make closed panels feel like skinny taps, not cards. */
+body.study-focus .study-layer:not([open]){
+  margin-top:4px!important;
+  margin-bottom:4px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  min-height:0!important;
+  box-shadow:none!important;
+}
+body.study-focus details.study-layer:not([open]) > summary,
+body.study-focus .collapsible-section.study-layer:not([open]) > summary,
+body.study-focus .amp-nuance-panel.study-layer:not([open]) > summary,
+body.study-focus .universal-study-card.study-layer:not([open]) > summary,
+body.study-focus .strongs-roots-panel.study-layer:not([open]) > summary,
+body.study-focus .verse-context-strip.study-layer:not([open]) > summary{
+  padding:4px 9px!important;
+  min-height:24px!important;
+  line-height:1.15!important;
+  font-size:10px!important;
+  letter-spacing:.02em!important;
+  border-radius:999px!important;
+  align-items:center!important;
+}
+body.study-focus .study-layer:not([open]) small,
+body.study-focus .study-layer:not([open]) .collapsible-cue{
+  font-size:9px!important;
+  max-width:38vw!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+body.study-focus .study-layer:not([open]) .kingdom-lens-label,
+body.study-focus .study-layer:not([open]) .cultural-label,
+body.study-focus .study-layer:not([open]) .flag-label{
+  font-size:10px!important;
+}
+body.study-focus .cross-refs-panel.study-layer:not([open]){
+  margin:4px 0!important;
+  padding:0!important;
+  background:transparent!important;
+}
+body.study-focus .cross-refs-panel.study-layer:not([open]) > summary{
+  padding:4px 9px!important;
+}
+
+/* Hide button makes expanded mobile navigation less dominant. */
+@media(max-width:680px){
+  .study-layer-toggle{
+    min-width:88px!important;
+    padding:8px 11px!important;
+  }
+  body.reader-focus .main{
+    padding-top:8px!important;
+  }
+  body.reader-focus .verse{
+    padding-top:6px!important;
+    padding-bottom:14px!important;
+    margin-bottom:14px!important;
+  }
+  body.reader-focus .verse-text{
+    font-size:25px!important;
+    line-height:1.72!important;
+  }
+  body.study-focus .study-layer:not([open]){
+    max-width:100%!important;
+    margin-top:3px!important;
+    margin-bottom:3px!important;
+  }
+  body.study-focus details.study-layer:not([open]) > summary,
+  body.study-focus .collapsible-section.study-layer:not([open]) > summary,
+  body.study-focus .amp-nuance-panel.study-layer:not([open]) > summary,
+  body.study-focus .universal-study-card.study-layer:not([open]) > summary,
+  body.study-focus .strongs-roots-panel.study-layer:not([open]) > summary,
+  body.study-focus .verse-context-strip.study-layer:not([open]) > summary{
+    padding:3px 8px!important;
+    min-height:22px!important;
+    font-size:9.5px!important;
+  }
+  body.study-focus .amp-text-content,
+  body.study-focus .plot-plain,
+  body.study-focus .heartbeat-body,
+  body.study-focus .culture-body,
+  body.study-focus .amp-note-text{
+    font-size:15px!important;
+    line-height:1.55!important;
+  }
+}
